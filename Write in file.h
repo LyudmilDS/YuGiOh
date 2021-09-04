@@ -6,7 +6,7 @@
 void saving_in_file(Card& karta)
 {
 	std::ofstream File;
-	File.open("karti.txt", std::ios::binary | std::ios::app);
+	File.open("card file.txt", std::ios::binary | std::ios::app);
 	if (!File)
 	{
 		std::cout << "cannot open the file!";

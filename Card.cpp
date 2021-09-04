@@ -57,7 +57,6 @@ Card::Card(const Card& karta)
 	}
 	position[i] = '\0';
 
-	//delete[] this->name;
 	this->name = new char[strlen(karta.name) + 1];
 	strcpy(this->name, karta.name);
 	this->name[strlen(karta.name)] = '\0';
