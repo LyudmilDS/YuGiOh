@@ -9,8 +9,7 @@ private:
 
 public:
 	Game(const Player&, const Player&);
-	void player1_turn(Player&,Player&);
-	void player2_turn(Player&,Player&);
+	void player_turn(Player&,Player&);
 	void game();
 
 	void drawPhase(Player&);

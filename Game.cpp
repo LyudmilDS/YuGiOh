@@ -6,72 +6,48 @@ Game::Game(const Player& player1_, const Player& player2_):player1(player1_),pla
 
 void Game::game()
 {
-	int i = 0;
+	int turn_nr = 1;
 	while (true)
 	{
-		if (i % 2 == 0)
+		if (turn_nr % 2 == 1)
 		{
-			player1_turn(player1, player2);
+			player_turn(player1, player2);
 		}
 		else
 		{
-			player2_turn(player2, player1);
+			player_turn(player2, player1);
 		}
-		++i;
+		++turn_nr;
 	}
 
 }
-void Game::player1_turn(Player& current_Player,Player& enemy_Player)
+void Game::player1_turn(Player& current_player,Player& enemy_player)
 {
-
-
-	//for()
-		//if i%2==0 ->player=player1
-		//else ->player=player2
-	drawPhase(current_Player);
-	standByPhase(current_Player);
+	drawPhase(current_player);
+	standByPhase(current_player);
 
 	std::cout << "Would you like to enter in battle phase or in end phase? (enter 'battle' or 'end'): ";
 
-	std::string answear;
-	std::getline(std::cin, answear);
+	std::string answer;
+	std::getline(std::cin, answer);
 
 	if (answear == "battle")
 	{
-		battlePhase(current_Player,enemy_Player);
+		battlePhase(current_player,enemy_player);
 	}
 
 	endPhase();
-
-}
-void Game::player2_turn(Player& current_Player, Player& enemy_Player)
-{
-	drawPhase(current_Player);
-	standByPhase(current_Player);
-
-	std::cout << "Would you like to enter in battle phase or in end phase? (enter 'battle' or 'end'): ";
-
-	std::string answear;
-	std::getline(std::cin, answear);
-
-	if (answear == "battle")
-	{
-		battlePhase(current_Player, enemy_Player);
-	}
-
-	endPhase();
-
 }
 
-void Game::drawPhase(Player& current_Player)
+void Game::drawPhase(Player& current_player)
 {
-	current_Player.draw();
-	std::cout << "You drew \n"; 
-	current_Player.lastDrawnCard();
+	current_player.draw();
+	std::cout << "You drew \n";
+	current_player.lastDrawnCard();
 	std::cout << "\n";
 }
 
-void Game::standByPhase(Player& current_Player)
+void Game::standByPhase(Player& current_player)
 {
 	std::cout << "Would u like to play the card on the field? (enter 'yes' or 'no'): ";
 
@@ -81,22 +57,22 @@ void Game::standByPhase(Player& current_Player)
 	if (answear == "no")
 	{
 		std::cout << "So you chose the card to remain in your hand.";
-		current_Player.print_hand();
+		current_player.print_hand();
 	}
 	else if (answear == "yes")
 	{
-		current_Player.summon();
+		current_player.summon();
 	}
 
 }
-void Game::battlePhase(Player& current_Player,Player& enemy_player)
+void Game::battlePhase(Player& current_player,Player& enemy_player)
 {
-	current_Player.print_field();
+	current_player.print_field();
 	std::cout << "Enter the name of a card in attack position you'd like to attack with: ";
 	std::string answear;
 	std::getline(std::cin, answear);
 
-	Card current_player_card = searchCard(current_Player.getField(), answear.c_str());
+	Card current_player_card = searchCard(current_player.getField(), answear.c_str());
 	
 	std::cout << "Choose what you will attack from the enemy field:\n";
 	enemy_player.print_field();
@@ -115,7 +91,7 @@ void Game::battlePhase(Player& current_Player,Player& enemy_player)
 		else if (current_player_card.getattack() < enemy_player_card.getdefence())
 		{
 			int difference_between_atk_and_def= enemy_player_card.getdefence() - current_player_card.getattack();
-			current_Player.setlivepoints(current_Player.getlivepoints()-difference_between_atk_and_def);
+			current_player.setlivepoints(current_player.getlivepoints()-difference_between_atk_and_def);
 			std::cout << "Your card attack is less than enemy's card defence. You lose LP!\n";
 		}
 		else if (current_player_card.getattack() == enemy_player_card.getdefence())
@@ -135,14 +111,14 @@ void Game::battlePhase(Player& current_Player,Player& enemy_player)
 		}
 		else if (current_player_card.getattack() == enemy_player_card.getattack())
 		{
-			current_Player.destroyed_card(current_player_card);
+			current_player.destroyed_card(current_player_card);
 			enemy_player.destroyed_card(enemy_player_card);
 			std::cout << "Both cards are destroyed!\n";
 		}
 		else if (current_player_card.getattack() < enemy_player_card.getattack())
 		{
-			current_Player.destroyed_card(current_player_card);
-			current_Player.setlivepoints(current_Player.getlivepoints() + difference_between_both_attacks);
+			current_player.destroyed_card(current_player_card);
+			current_player.setlivepoints(current_player.getlivepoints() + difference_between_both_attacks);
 			std::cout << "Your card attack is less than enemy's card attack. Your card is destroyed and you lose LP!\n";
 		}
 	}

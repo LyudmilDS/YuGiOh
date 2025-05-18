@@ -15,8 +15,8 @@ private:
 
 public:
 	Player();
-	Player(const char* ime);
-	Player(const Player& igrach);
+	Player(const char*);
+	Player(const Player&);
 	~Player();
 	
 	//SETers
@@ -46,7 +46,7 @@ public:
 	void changecard_position(int);
 	void destroyed_card(const Card&);
 
-	friend std::ostream& operator<<(std::ostream& stream, const Player& igrach);
+	friend std::ostream& operator<<(std::ostream&, const Player&);
 };
 
 
