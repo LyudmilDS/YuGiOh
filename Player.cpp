@@ -1,291 +1,290 @@
-#include "Player.h"
+//system includes
+#include <algorithm> //sort, swap
+#include <stdexcept> //std::out_of_range
+#include <iostream> //getline, cout
+#include <fstream> //ifstream
+#include <stdlib.h> //srand, rand
+#include <string> //string
+#include <time.h> //time
+#include <vector> //vector
+
+//user includes
+#include "Card.hpp"
+#include "Player.hpp"
+#include "Saving_to_file.hpp"
 
 #pragma warning(disable  : 4996)
 
-Player::Player() :live_points(4000), name(nullptr)
+//-------------------------------------------
+//Utilities
+
+//the number of all cards saved in the card_file.txt
+const int NR_SAVED_CARDS = 16;
+
+//generates a vector of 'NR_SAVED_CARDS' random numbers in the range [0, NR_SAVED_CARDS)
+std::vector<int> generate_rand_rows(int nr_rows)
 {
-	// by default c++ cannot assign const char to char. A workaround is to used another variable and copy it
-	// this->name is char and _name is const char
-	this->name = new char[5];
-	// '\0' is automatically added at the end, ONLY IF the array is with +1 lenght
-	char _name[5] = "Zane";
+	std::vector<int> rows_read_cards(nr_rows);
 
-	// '\0' is transfered successfully
-	strcpy(name, _name);
-}
+	srand(time(0));
 
-Player::Player(const char* player_name)
-{
-	this->name = new char[strlen(player_name) + 1];
-
-	// '\0' is transfered successfully
-	strcpy(this->name, player_name);
-	// for safety measures
-	this->name[strlen(player_name)] = '\0';
-
-	this->live_points = 4000;
-}
-
-Player::Player(const Player& other_player)
-{
-	this->name = new char[strlen(other_player.name) + 1];
-
-	//this loop is equavalent to strcpy(name, other_player.name);
-	//bad practise is to put strlen() in the loop
-	int name_lenght = strlen(other_player.name);
-	for (int i = 0; i < name_lenght; i++)
+	for (int i = 0; i < nr_rows; i++)
 	{
-		this->name[i] = other_player.name[i];
+		rows_read_cards[i] = rand() % NR_SAVED_CARDS;
 	}
-	// dont forget to save '\0' at the end of a char[]
-	this->name[strlen(other_player.name)] = '\0';
 
-	this->live_points = other_player.live_points;
+	//sorting the array of random numbers to make the reading from the file easier
+	std::sort(rows_read_cards.begin(), rows_read_cards.end());
 
-	this->deck = other_player.deck;
-	this->hand = other_player.hand;
-	this->graveyard = other_player.graveyard;
-	this->field = other_player.field;
+	return rows_read_cards;
+}
+
+//-------------------------------------------
+//Player Class implementation
+
+Player::Player(const std::string& player_name)
+{
+	m_name = player_name;
+	m_live_points = 4000;
+
+	// reserve memory for the vectors to avoid resizing during the game
+	m_hand.reserve(5);
+	m_field.reserve(5);
+	m_deck.reserve(10);
+	m_graveyard.reserve(10);
+}
+
+Player::Player(const Player& player) :
+	m_name(player.m_name),
+	m_hand(player.m_hand),
+	m_field(player.m_field),
+	m_deck(player.m_deck),
+	m_graveyard(player.m_graveyard),
+	m_live_points(player.m_live_points)
+{
+	m_hand.reserve(player.m_hand.capacity());
+	m_field.reserve(player.m_field.capacity());
+	m_deck.reserve(player.m_deck.capacity());
+	m_graveyard.reserve(player.m_graveyard.capacity());
 }
 
 Player::~Player()
 {
-	//other member variables have build-in deconstructors
-	delete[] name;
+	//empty because member variables have build-in deconstructors
 }
 
-//GETers-------------------------------------------
-int Player::getlivepoints()
+//-------------------------------------------
+//geters
+
+int Player::getLivePoints()
 {
-	return this->live_points;
+	return  m_live_points;
 }
 
-char* Player::getname()
+std::string& Player::getName()
 {
-	return this->name;
+	return  m_name;
 }
 
-std::vector<Card> Player::getHand()
+std::vector<Card>& Player::getHand()
 {
-	return this->hand;
+	return  m_hand;
 }
 
-std::vector<Card> Player::getField()
+std::vector<Card>& Player::getField()
 {
-	return this->field;
+	return  m_field;
 }
 
-std::vector<Card> Player::getGraveyard()
+std::vector<Card>& Player::getGraveyard()
 {
-	return this->graveyard;
+	return  m_graveyard;
 }
 
-//SETers---------------------------------------------
-void Player::setlivepoints(int lp)
+//-------------------------------------------
+//seters
+
+void Player::receiveDamage(int received_damage)
 {
-	this->live_points = lp;
+	m_live_points -= received_damage;
 }
 
-void Player::setname(const char* new_name)
-{
-	// avoid memory leak. First delete[] the previous poiter then assign a new one
-	delete[] this->name;
-	this->name = new char[strlen(new_name) + 1];
+//-------------------------------------------
+//printing on the console
 
-	//this loop is equavalent to strcpy(name, new_name);
-	//bad practise is to put strlen() in the loop
-	int name_lenght = strlen(new_name);
-	for (int i = 0; i < name_lenght; i++)
+void Player::printHand()
+{
+	std::cout << "Your hand contains:\n\n";
+
+	int nr_card = 1;
+
+	for (std::vector<Card>::iterator it = m_hand.begin(); it != m_hand.end(); ++it)
 	{
-		this->name[i] = new_name[i];
-	}
-	this->name[strlen(new_name)] = '\0';
-}
-
-//printing--------------------------------------------------
-void Player::print_hand()
-{
-	std::cout << "The hand contains:\n";
-	for (std::vector<Card>::iterator it = hand.begin(); it != hand.end(); ++it)
-	{
-		std::cout << *it << "\n";
+		std::cout << "Card " << nr_card << ":\n" << * it << "\n";
+		nr_card++;
 	}
 }
 
-void Player::print_field()
+void Player::printField()
 {
-	std::cout << "The field contains:\n";
-	for (std::vector<Card>::iterator it = field.begin(); it != field.end(); ++it)
+	std::cout << "Your field contains:\n";
+
+	int nr_card = 1;
+
+	for (std::vector<Card>::iterator it = m_field.begin(); it != m_field.end(); ++it)
 	{
-		std::cout << *it << "\n";
+		std::cout << "Card " << nr_card << ":\n" << *it << "In " << (*it).getPosition() << " position\n";
+		nr_card++;
 	}
 }
 
-void Player::print_graveyard()
+void Player::printGraveyard()
 {
-	std::cout << "The graveyard contains:\n";
-	for (std::vector<Card>::iterator it = graveyard.begin(); it != graveyard.end(); ++it)
+	std::cout << "Your graveyard contains:\n";
+
+	int nr_card = 1;
+
+	for (std::vector<Card>::iterator it = m_graveyard.begin(); it != m_graveyard.end(); ++it)
 	{
-		std::cout << *it << "\n";
+		std::cout << "Card " << nr_card << ":\n" << *it << "\n";
+		nr_card++;
 	}
 }
 
-//preparations for the game---------------------------------
-void Player::loading_deck(const char* file_name, const int count_cards_in_deck)
+//-------------------------------------------
+//preparations for the game
+
+void Player::loadingDeck(const int nr_cards_in_deck)
 {
-	std::ifstream File;
-	File.open(file_name, std::ios::binary);
-	if (!File)
+	std::vector<int> rows_read_cards = generate_rand_rows(nr_cards_in_deck);
+	std::vector<Card> loaded_cards = loadFromFile();
+
+	for (size_t i = 0; i < rows_read_cards.size(); i++)
 	{
-		std::cout << "Cannot open the file!";
-		return;
+		m_deck.push_back(loaded_cards[rows_read_cards[i]]);
 	}
 
+	shuffleDeck();
+}
+
+
+void Player::shuffleDeck()
+{
 	srand(time(0));
 
-	int* number_cards = new int[count_cards_in_deck];//an array that holds 'count_cards_in_deck' random numbers
-
-	for (int i = 0; i < count_cards_in_deck; i++)
+	for (int i = 0; i < m_deck.size(); ++i)
 	{
-		number_cards[i] = rand() % 16;//this number represents all the cards saved in the file
-		for (int j = 0; j < i; ++j)
-		{
-			if (number_cards[i] == number_cards[j])
-			{
-				number_cards[i] = rand() % 16;
-				j = -1;
-			}
-		}
-	}
-
-	std::sort(number_cards, number_cards + count_cards_in_deck);
-
-	//reading from the file
-	int extracted_cards = 0, line = 0;
-	while (extracted_cards < count_cards_in_deck)
-	{
-		char name[35], pos[8], WS, nul;
-		int atk, def;
-
-		//reading name
-		int I = 0;
-		do
-		{
-			File.read((char*)&name[I], sizeof(char));
-			I++;
-		} while (name[I - 1] != '\0');
-
-		//reading attack & defence
-		File.read((char*)&atk, sizeof(int));
-		File.read((char*)&WS, 1);
-
-		File.read((char*)&def, sizeof(int));
-		File.read((char*)&WS, 1);
-
-		//reading position
-		I = 0;
-		do
-		{
-			File.read((char*)&pos[I], sizeof(char));
-			I++;
-		} while (pos[I - 1] != '\0');
-
-		File.read((char*)&nul, 1);
-
-		//checking if the number of the line in the file is one of the random numbers
-		for (int j = 0; j < count_cards_in_deck; j++)
-		{
-			if (line == number_cards[j])
-			{
-				Card new_card;
-				new_card.setattack(atk);
-				new_card.setdefence(def);
-				new_card.setposition(pos);
-				new_card.setname(name);
-				deck.push_back(new_card);
-				extracted_cards++;
-				break;
-			}
-		}
-
-		line++;//if the number of the line is not among the random numbers, the reading continues
-	}
-	delete[] number_cards;
-
-	shuffle_deck();
-}
-
-
-void Player::shuffle_deck()
-{
-	srand(time(0));
-	for (int i = 0; i < deck.size(); ++i)
-	{
-		int card_for_swaping = rand() % deck.size();
-		std::swap(deck[i], deck[card_for_swaping]);
+		int card_for_swaping = rand() % m_deck.size();
+		std::swap(m_deck[i], m_deck[card_for_swaping]);
 	}
 }
 
+//-------------------------------------------
+//actions during the game
 
 void Player::draw()
 {
-	hand.push_back(deck.back());
-	deck.pop_back();
+	std::cout << "You drew: \n";
+
+	m_hand.push_back(m_deck.back());
+	m_deck.pop_back();
+
+	std::cout << lastDrawnCard() << "\n";
 }
 
-
-void Player::lastDrawnCard()
+const Card& Player::lastDrawnCard()
 {
-	std::cout << hand[hand.size() - 1];
+	return m_hand[m_hand.size() - 1];
 }
-void Player::summon()
-{
-	std::cout << "You chose to play the card. Now enter in what position you'd like to play it (enter 'attack' or 'defence'): ";
-	std::string position;
-	std::getline(std::cin, position);
 
-	if (position == "attack")
+void Player::summonCard()
+{
+	if (m_hand.size() == 0)
 	{
-		hand.back().setposition("attack");
-		field.push_back(hand.back());
-		hand.pop_back();
+		std::cout << "You have no cards in your hand to summon.\n";
+		return;
 	}
-	else if (position == "defence")
-	{
-		hand.back().setposition("defence");
-		field.push_back(hand.back());
-		hand.pop_back();
-	}
-}
 
-void Player::destroyed_card(const Card& card_to_be_destroyed)
-{
-	for (int i = 0; i < field.size(); ++i)
+	std::cout << "\nYou chose to summon a card.\n";
+	printHand();
+	std::cout << "Enter which card you want to summon: ";
+
+	int number_card;
+
+	//validate the input for the card number
+	while(true)
 	{
-		if (field[i].getname() == card_to_be_destroyed.getname())
+		//ignore the newline character left in the input buffer
+		std::cin >> number_card;
+		std::cin.ignore();
+
+		if (number_card < 1 || number_card > m_hand.size())
 		{
-			graveyard.push_back(field[i]);
-			field.erase(field.begin() + i);
+			std::cout << "Invalid card number! Enter a number between 1 and " << m_hand.size() << ": ";
+		}
+		else
+		{
+			break;
 		}
 	}
-}
-void Player::changecard_position(int number_card)
-{
-	//swaps card's position in the field
-	Card* curr_card = &field[number_card];
-	if (curr_card->getposition() == "attack")
+
+	bool valid_position = false;
+
+	//validate the input for the position of the card
+	do
 	{
-		curr_card->setposition("defence");
-	}
-	else
-	{
-		curr_card->setposition("attack");
-	}
+		std::cout << "Enter in what position you want to summon (attack/defence): ";
+		std::string position;
+		std::getline(std::cin, position);
+
+		if (position == "attack")
+		{
+			m_hand[number_card-1].setPosition("attack");
+			m_field.push_back(m_hand[number_card-1]);
+			m_hand.erase(m_hand.begin() + number_card-1);
+
+			valid_position = true;
+		}
+		else if (position == "defence")
+		{
+			m_hand[number_card-1].setPosition("defence");
+			m_field.push_back(m_hand[number_card-1]);
+			m_hand.erase(m_hand.begin() + number_card-1);
+
+			valid_position = true;
+		}
+		else
+		{
+			std::cout << "Invalid input! Enter 'attack' or 'defence'\n";
+		}
+	} while (valid_position == false);
+
 }
 
-std::ostream& operator<<(std::ostream& stream, const Player& igrach)
+void Player::destroyedCard(int card_index)
 {
-	stream << "Name: " << igrach.name << "\n" <<
-		"LP: " << igrach.live_points << "\n";
-	return stream;
+	m_graveyard.push_back(m_field[card_index]);
+	m_field.erase(m_field.begin() + card_index);
+}
+
+void Player::changeCardPosition()
+{
+	if (m_field.size() == 0)
+	{
+		std::cout << "You have no cards on the field to change their position.\n";
+		return;
+	}
+
+	std::cout << "You chose to change a card's position. \n";
+	std::cout << "Your field contains:\n";
+	printField();
+	std::cout << "Enter the number of the card you want to change its position: ";
+
+	int number_card;
+
+	//ignore the newline character left in the input buffer
+	std::cin >> number_card;
+	std::cin.ignore();
+
+	m_field[number_card].changePosition();
 }

@@ -1,0 +1,18 @@
+Blue-Eyes White Dragon	3000	2500
+Kuriboh	200	150
+Baby Dragon	900	2500
+Cyber Dragon	2100	1500
+Cyber Dragon Core	400	1500
+Cyber Jormungardr	1000	2100
+Gaia-the magic knight	2300	1600
+Water Salamander	1800	1100
+Happy the cat	750	600
+Natsu Dragneel	3100	2000
+Elemental Hero Bastian	2200	2200
+Pokahontas	100	200
+Ojama Yellow	0	1000
+Ojama Black	0	1000
+Ojama Green	0	1000
+ojama Knight	0	2500
+Dark Magician	2400	1700
+Giant Skeleton	1600	2700
