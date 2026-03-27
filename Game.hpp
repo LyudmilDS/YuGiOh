@@ -21,8 +21,11 @@ public:
 	Game() = delete;
 	Game(const Player& player1, const Player& player2);
 
+	/// @brief Prepares players' decks for the game
+	void loadGame();
+
 	/// @brief Main function that runs the game loop.
-	void startGame(Player& player1, Player& player2);
+	void startGame();
 
 	/// @brief Handles the turn for a specific player.
 	void playerTurn(Player& current_player, Player& enemy_player);
@@ -31,7 +34,7 @@ public:
 	void drawPhase(Player& current_player);
 
 	/// @brief In this phase, the player can perform actions such as setting cards or changing a card position.
-	void standByPhase(Player& current_player, Player& enemy_player);
+	int standByPhase(Player& current_player, Player& enemy_player);
 
 	/// @brief In this phase, the player can engage in battles with their opponent.
 	void battlePhase(Player&, Player&);
