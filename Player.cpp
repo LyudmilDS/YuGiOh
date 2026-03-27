@@ -133,7 +133,7 @@ void Player::printField()
 
 	for (std::vector<Card>::iterator it = m_field.begin(); it != m_field.end(); ++it)
 	{
-		std::cout << "Card " << nr_card << ":\n" << *it << "In " << (*it).getPosition() << " position\n";
+		std::cout << "Card " << nr_card << ":\n" << *it << "In " << (*it).getPosition() << " position\n\n";
 		nr_card++;
 	}
 }
@@ -205,7 +205,7 @@ void Player::summonCard()
 		return;
 	}
 
-	std::cout << "\nYou chose to summon a card.\n";
+	std::cout << "You chose to summon a card.\n";
 	printHand();
 	std::cout << "Enter which card you want to summon: ";
 
@@ -228,22 +228,20 @@ void Player::summonCard()
 		}
 	}
 
-	bool valid_position = false;
+	std::cout << "Enter in what position you want to summon (attack/defence): ";
+	std::string position;
+	std::getline(std::cin, position);
 
 	//validate the input for the position of the card
-	do
+	while(true)
 	{
-		std::cout << "Enter in what position you want to summon (attack/defence): ";
-		std::string position;
-		std::getline(std::cin, position);
-
 		if (position == "attack")
 		{
 			m_hand[number_card-1].setPosition("attack");
 			m_field.push_back(m_hand[number_card-1]);
 			m_hand.erase(m_hand.begin() + number_card-1);
 
-			valid_position = true;
+			break;
 		}
 		else if (position == "defence")
 		{
@@ -251,13 +249,17 @@ void Player::summonCard()
 			m_field.push_back(m_hand[number_card-1]);
 			m_hand.erase(m_hand.begin() + number_card-1);
 
-			valid_position = true;
+			break;
 		}
 		else
 		{
-			std::cout << "Invalid input! Enter 'attack' or 'defence'\n";
+			std::cout << "Invalid input! Enter 'attack' or 'defence': ";
+			std::getline(std::cin, position);
 		}
-	} while (valid_position == false);
+	}
+
+	std::cout <<"\n" <<
+		m_field[number_card - 1].getName() << " summoned in " << position << " position.\n\n";
 
 }
 

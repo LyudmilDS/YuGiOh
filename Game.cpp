@@ -11,31 +11,43 @@ Game::Game(const Player& player1, const Player& player2) : m_player1(player1), m
 {
 }
 
-void Game::startGame(Player& player1, Player& player2)
-{
-	int turn_nr = 1;
 
+void Game::loadGame()
+{
 	std::cout << "------------------------------\n" <<
 		"|  Prepare for the game. \n" <<
 		"|  Loading decks... \n" <<
-		"------------------------------\n";
+		"------------------------------\n" <<
+		"\t" << m_player1.getName() << "  vs  " << m_player2.getName() << "\n";
 
-	player1.loadingDeck(10);
-	player2.loadingDeck(10);
+	m_player1.loadingDeck(10);
+	m_player2.loadingDeck(10);
+}
+
+void Game::startGame()
+{
+	int turn_nr = 1;
+
+	loadGame();
 
 	while (true)
 	{
-		std::cout << "------------------------------\n" <<
-			"|  Turn " << turn_nr << ":\n" <<
-			"------------------------------\n";
 
 		if (turn_nr % 2 == 1)
 		{
-			playerTurn(player1, player2);
+			std::cout << "------------------------------\n" <<
+				"|  Turn " << turn_nr << " |  " << m_player1.getName() <<"'s turn\n" <<
+				"------------------------------\n";
+
+			playerTurn(m_player1, m_player2);
 		}
 		else
 		{
-			playerTurn(player2, player1);
+			std::cout << "------------------------------\n" <<
+				"|  Turn " << turn_nr << " |  " << m_player2.getName() << "'s turn\n" <<
+				"------------------------------\n";
+
+			playerTurn(m_player2, m_player1);
 		}
 		++turn_nr;
 	}
@@ -45,30 +57,45 @@ void Game::startGame(Player& player1, Player& player2)
 void Game::playerTurn(Player& current_player, Player& enemy_player)
 {
 	drawPhase(current_player);
-	standByPhase(current_player, enemy_player);
+	int action = standByPhase(current_player, enemy_player);
 
-	std::cout << "Would you like to enter in battle phase or in end phase? (enter 'battle' or 'end'): ";
-
-
-	while(true)
+	// TODO: this switch is hard to read. It needs to be replaced with 
+	// something more clearer
+	switch (action)
 	{
-		std::string answer;
-		std::getline(std::cin, answer);
+	case 1:
+	case 2:
+	{
+		std::cout << "Actions you can still do this turn:\n" <<
+			"3. Enter Battle phase.\n" <<
+			"4. End your turn.\n" <<
+			"\n" <<
+			"Enter action: ";
 
-		if (answer == "battle")
-		{
-			battlePhase(current_player, enemy_player);
-			break;
-		}
-		else if (answer == "end")
-		{
-			endPhase();
-			break;
-		}
-		else
-		{
-			std::cout << "Invalid input. Enter 'battle' or 'end'.\n";
-		}
+		std::cin >> action;
+		std::cin.ignore();
+
+		break;
+	}
+	case 3:
+	case 4:
+	{
+		action = 5;
+		break;
+	}
+	default:
+		std::cout << "Invalid StandBy phase!\n";
+
+		break;
+	}
+
+	if (action == 3)
+	{
+		battlePhase(current_player, enemy_player);
+	}
+	else if (action == 4)
+	{
+		endPhase();
 	}
 }
 
@@ -82,7 +109,7 @@ void Game::drawPhase(Player& current_player)
 	current_player.draw();
 }
 
-void Game::standByPhase(Player& current_player, Player& enemy_player)
+int Game::standByPhase(Player& current_player, Player& enemy_player)
 {
 	std::cout <<
 		"------------------------------\n" <<
@@ -97,7 +124,7 @@ void Game::standByPhase(Player& current_player, Player& enemy_player)
 		"\n" <<
 		"Enter action: ";
 
-	int action;
+	int action = 0;
 	std::cin >> action;
 	std::cin.ignore();
 
@@ -120,22 +147,25 @@ void Game::standByPhase(Player& current_player, Player& enemy_player)
 		endPhase();
 		break;
 	}
+
+	return action;
 }
 
 void Game::battlePhase(Player& current_player, Player& enemy_player)
 {
-	std::cout <<
-		"------------------------------\n" <<
-		"|  Battle phase:\n" <<
-		"------------------------------\n";
 
 	//TODO: create a function in Player to validate the curr_player field and move this check there.
 	//also add a check if all cards on the field are in defence position, because then the player can't attack and should skip battle phase.
 	if (current_player.getField().size() == 0)
 	{
-		std::cout << "You have no cards on the field to attack with. Ending your turn.\n";
+		std::cout << "You have no cards on the field to attack with. Skipping Battle phase and ending your turn.\n";
 		return;
 	}
+
+	std::cout <<
+		"------------------------------\n" <<
+		"|  Battle phase:\n" <<
+		"------------------------------\n";
 
 	current_player.printField();
 
@@ -150,7 +180,7 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 
 		if (curr_player_nr_card < 0 || curr_player_nr_card > current_player.getField().size())
 		{
-			std::cout << "Invalid card number. Enter number between 1 and " << current_player.getField().size() <<"\n";
+			std::cout << "Invalid card number. Enter number between 1 and " << current_player.getField().size();
 		}
 		else if (current_player.getField()[curr_player_nr_card-1].getPosition() == std::string("defence"))
 		{
@@ -172,7 +202,7 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 		}
 	}
 
-	//TODo, as per the above todo, execute this only if the there is at least one card in attack position on the field
+	//TODO, as per the above todo, execute this only if the there is at least one card in attack position on the field
 	std::cout << "Enemy field contains:\n";
 	enemy_player.printField();
 
@@ -209,7 +239,6 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 			std::cout << "Attacking card has the same attack power as the defending card. Nothing happens.\n";
 		}
 	}
-	// (defending_card.getPosition() == "attack")
 	else
 	{
 		if (attacking_card.getAttack() > defending_card.getAttack())
