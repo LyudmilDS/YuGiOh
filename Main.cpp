@@ -1,14 +1,21 @@
-﻿#include"Write in file.h"
-#include"Game.h"
+﻿//system includes
+#include <iostream>
+#include <vector>
+#include <string>
+
+//user includes
+#include"Game.hpp"
+#include"Player.hpp"
+#include"Card.hpp"
+#include"Saving_to_file.hpp"
+
+using namespace std;
+
 int main()
 {
-	Player yugi_muto("yugi muto"),pegasus("pegasus");
+     Player yugi_muto("Yugi Muto"), pegasus("Pegasus");
+     Game game(yugi_muto, pegasus);
 
-	yugi_muto.loading_deck("card file.txt",10);
-	pegasus.loading_deck("card file.txt", 10);
+	 game.startGame(yugi_muto, pegasus);
 
-	Game game(yugi_muto, pegasus);
-	game.game();
-
-	return 0;
 }
