@@ -14,7 +14,6 @@
 #include "Player.hpp"
 #include "Saving_to_file.hpp"
 
-#pragma warning(disable  : 4996)
 
 //-------------------------------------------
 //Utilities

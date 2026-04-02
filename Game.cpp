@@ -7,6 +7,10 @@
 #include"Card.hpp"
 #include "Game.hpp"
 
+
+//-------------------------------------------
+//Game Class implementation
+
 Game::Game(const Player& player1, const Player& player2) : m_player1(player1), m_player2(player2)
 {
 }

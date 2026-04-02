@@ -4,7 +4,10 @@
 
 //user includes
 #include "Card.hpp"
-#pragma warning(disable  : 4996)
+
+
+//-------------------------------------------
+//Card Class implementation
 
 Card::Card() : m_name(""), m_position("unplayed"), m_attack(0), m_defence(0)
 {
