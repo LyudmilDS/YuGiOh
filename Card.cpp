@@ -13,7 +13,7 @@ Card::Card() : m_name(""), m_position("unplayed"), m_attack(0), m_defence(0)
 {
 }
 
-Card::Card(const std::string name, int atk, int def) :
+Card::Card(const std::string& name, int atk, int def) :
 	m_name(name),
 	m_position("unplayed"),
 	m_attack(atk),
@@ -40,11 +40,11 @@ const int Card::getDefence()const
 {
 	return  m_defence;
 }
-const std::string Card::getPosition() const
+const std::string& Card::getPosition() const
 {
 	return  m_position;
 }
-const std::string Card::getName()const
+const std::string& Card::getName()const
 {
 	return  m_name;
 }
@@ -60,11 +60,11 @@ void Card::setDefence(int def)
 {
 	m_defence = def;
 }
-void Card::setPosition(const std::string pos)
+void Card::setPosition(const std::string& pos)
 {
 	m_position = pos;
 }
-void Card::setName(const std::string name)
+void Card::setName(const std::string& name)
 {
 	m_name = name;
 }

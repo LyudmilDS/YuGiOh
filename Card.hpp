@@ -15,20 +15,20 @@ private:
 
 public:
 	Card();
-	Card(const std::string name, int atk, int def);
 	Card(const Card& card);
+	Card(const std::string& name, int atk, int def);
 
 	//geters
 	const int getAttack() const;
 	const int getDefence() const;
-	const std::string getPosition() const;
-	const std::string getName() const;
+	const std::string& getPosition() const;
+	const std::string& getName() const;
 
 	//seters
 	void setAttack(int atk);
 	void setDefence(int def);
-	void setPosition(const std::string pos);
-	void setName(const std::string ime);
+	void setPosition(const std::string& pos);
+	void setName(const std::string& name);
 
 	void changePosition();
 

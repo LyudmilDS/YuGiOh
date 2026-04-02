@@ -9,7 +9,7 @@
 //-------------------------------------------
 //Magic Card Class implementation
 
-MagicCard::MagicCard(const std::string name, const std::string effect) :
+MagicCard::MagicCard(const std::string& name, const std::string& effect) :
 	m_name(name),
 	m_effect(effect)
 {
@@ -24,12 +24,12 @@ MagicCard::MagicCard(const MagicCard& magic_card) :
 //-------------------------------------------
 //getters
 
-const std::string MagicCard::getName() const
+const std::string& MagicCard::getName() const
 {
 	return m_name;
 }
 
-const std::string MagicCard::getEffect() const
+const std::string& MagicCard::getEffect() const
 {
 	return m_effect;
 }
@@ -37,12 +37,12 @@ const std::string MagicCard::getEffect() const
 //-------------------------------------------
 //setters
 
-void MagicCard::setName(const std::string name)
+void MagicCard::setName(const std::string& name)
 {
 	m_name = name;
 }
 
-void MagicCard::setEffect(const std::string effect)
+void MagicCard::setEffect(const std::string& effect)
 {
 	m_effect = effect;
 }
