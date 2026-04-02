@@ -21,7 +21,8 @@ private:
 public:
 	Player(const std::string& player_name);
 	Player(const Player& player);
-	~Player();
+	//member variables have build-in deconstructors
+	~Player() = default;
 
 	//geters
 	int getLivePoints();
@@ -64,8 +65,12 @@ public:
 	/// @param card_index: The index of the card on the field to be destroyed.
 	void destroyedCard(int card_index);
 
-	/// @brief Prompts the user which card to swap to its position.
+	/// @brief Prompts the user which card on the field to swap its position.	
 	void changeCardPosition();
+
+	/// @brief Validates if the player can attack by checking field status.
+	/// @return true if the player has at least one card in attack position, false otherwise.
+	bool canAttack();
 };
 
 
