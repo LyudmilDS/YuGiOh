@@ -6,6 +6,7 @@
 #include <stdlib.h> //srand, rand
 #include <string> //string
 #include <time.h> //time
+#include <utility> //std::move
 #include <vector> //vector
 
 //user includes
@@ -68,10 +69,6 @@ Player::Player(const Player& player) :
 	m_graveyard.reserve(player.m_graveyard.capacity());
 }
 
-Player::~Player()
-{
-	//empty because member variables have build-in deconstructors
-}
 
 //-------------------------------------------
 //geters
@@ -118,9 +115,9 @@ void Player::printHand()
 
 	int nr_card = 1;
 
-	for (std::vector<Card>::iterator it = m_hand.begin(); it != m_hand.end(); ++it)
+	for (const Card& card : m_hand)
 	{
-		std::cout << "Card " << nr_card << ":\n" << * it << "\n";
+		std::cout << "Card " << nr_card << ":\n" << card << "\n";
 		nr_card++;
 	}
 }
@@ -131,9 +128,10 @@ void Player::printField()
 
 	int nr_card = 1;
 
-	for (std::vector<Card>::iterator it = m_field.begin(); it != m_field.end(); ++it)
+	for (const Card& card : m_field)
 	{
-		std::cout << "Card " << nr_card << ":\n" << *it << "In " << (*it).getPosition() << " position\n\n";
+		std::cout << "Card " << nr_card << ":\n" << card << 
+			"In " << card.getPosition() << " position\n";
 		nr_card++;
 	}
 }
@@ -144,9 +142,9 @@ void Player::printGraveyard()
 
 	int nr_card = 1;
 
-	for (std::vector<Card>::iterator it = m_graveyard.begin(); it != m_graveyard.end(); ++it)
+	for (const Card& card : m_graveyard)
 	{
-		std::cout << "Card " << nr_card << ":\n" << *it << "\n";
+		std::cout << "Card " << nr_card << ":\n" << card << "\n";
 		nr_card++;
 	}
 }
@@ -161,7 +159,7 @@ void Player::loadingDeck(const int nr_cards_in_deck)
 
 	for (size_t i = 0; i < rows_read_cards.size(); i++)
 	{
-		m_deck.push_back(loaded_cards[rows_read_cards[i]]);
+		m_deck.push_back(std::move(loaded_cards[rows_read_cards[i]]));
 	}
 
 	shuffleDeck();
@@ -184,12 +182,9 @@ void Player::shuffleDeck()
 
 void Player::draw()
 {
-	std::cout << "You drew: \n";
+	m_hand.push_back(std::move(m_deck.back()));
 
-	m_hand.push_back(m_deck.back());
-	m_deck.pop_back();
-
-	std::cout << lastDrawnCard() << "\n";
+	std::cout << "You drew:" << lastDrawnCard() << "\n";
 }
 
 const Card& Player::lastDrawnCard()
@@ -205,67 +200,55 @@ void Player::summonCard()
 		return;
 	}
 
-	std::cout << "You chose to summon a card.\n";
+	std::cout << "\nYou chose to summon a card.\n";
+
 	printHand();
+
 	std::cout << "Enter which card you want to summon: ";
 
-	int number_card;
-
-	//validate the input for the card number
+	//validate user input
+	int card_number;
 	while(true)
 	{
-		//ignore the newline character left in the input buffer
-		std::cin >> number_card;
-		std::cin.ignore();
+		if(std::cin >> card_number)
+		{
+			std::cin.ignore();
 
-		if (number_card < 1 || number_card > m_hand.size())
-		{
-			std::cout << "Invalid card number! Enter a number between 1 and " << m_hand.size() << ": ";
+			if (card_number >= 1 && card_number <= m_hand.size())
+			{
+				break;
+			}
 		}
-		else
-		{
-			break;
-		}
+
+		std::cin.clear();
+		std::cin.ignore(10000, '\n');
+		std::cout << "Invalid input. Enter a number between 1 and " << m_hand.size() << ": ";
 	}
-
+	
 	std::cout << "Enter in what position you want to summon (attack/defence): ";
-	std::string position;
-	std::getline(std::cin, position);
 
-	//validate the input for the position of the card
+	//validate user input
+	std::string position;
 	while(true)
 	{
-		if (position == "attack")
+		std::getline(std::cin, position);
+
+		if (position == "attack" || position == "defence")
 		{
-			m_hand[number_card-1].setPosition("attack");
-			m_field.push_back(m_hand[number_card-1]);
-			m_hand.erase(m_hand.begin() + number_card-1);
+			m_hand[card_number-1].setPosition(position);
+			m_field.push_back(std::move(m_hand[card_number-1]));
+			m_hand.erase(m_hand.begin() + card_number-1);
 
 			break;
 		}
-		else if (position == "defence")
-		{
-			m_hand[number_card-1].setPosition("defence");
-			m_field.push_back(m_hand[number_card-1]);
-			m_hand.erase(m_hand.begin() + number_card-1);
 
-			break;
-		}
-		else
-		{
-			std::cout << "Invalid input! Enter 'attack' or 'defence': ";
-			std::getline(std::cin, position);
-		}
+		std::cout << "Invalid input! Enter 'attack' or 'defence'\n";
 	}
-
-	std::cout <<"\n" <<
-		m_field[number_card - 1].getName() << " summoned in " << position << " position.\n\n";
-
 }
 
 void Player::destroyedCard(int card_index)
 {
-	m_graveyard.push_back(m_field[card_index]);
+	m_graveyard.push_back(std::move(m_field[card_index]));
 	m_field.erase(m_field.begin() + card_index);
 }
 
@@ -279,14 +262,53 @@ void Player::changeCardPosition()
 
 	std::cout << "You chose to change a card's position. \n";
 	std::cout << "Your field contains:\n";
+
 	printField();
+
 	std::cout << "Enter the number of the card you want to change its position: ";
 
-	int number_card;
+	//validate user input
+	int card_number;
+	while(true)
+	{
+		if(std::cin >> card_number)
+		{
+			std::cin.ignore();
 
-	//ignore the newline character left in the input buffer
-	std::cin >> number_card;
-	std::cin.ignore();
+			if (card_number >= 1 && card_number <= m_field.size())
+			{
+				m_field[card_number-1].changePosition();
+				break;
+			}
+		}
 
-	m_field[number_card].changePosition();
+		std::cin.clear();
+		std::cin.ignore(10000, '\n');
+		std::cout << "Invalid input. Enter a number between 1 and " << m_field.size() << ": ";
+	}
+}
+
+bool Player::canAttack()
+{
+	// Check if field is empty
+	if (m_field.size() == 0)
+	{
+		std::cout << "You have no cards on the field to attack with. Ending your turn.\n";
+		return false;
+	}
+
+	// Check if all cards on the field are in defence position
+	for (const Card& card : m_field)
+	{
+		if (card.getPosition() == "attack")
+		{
+			return true;
+		}
+	}
+
+	// All cards are in defence position
+	std::cout << "All your cards on the field are in defence position and you can't attack.\n" <<
+		"Skipping battle phase.\n";
+		
+	return false;
 }

@@ -1,5 +1,34 @@
-# YuGiOh
- The popular card game
-  Here you can find my recreation of the popular card game Yu-Gi-Oh. This is a project I did entirely by myself in my leasure time, that I started for a purpose of exercise. Here you can see different styles of implementing functions and using char array instead of char* or std::string. This is all made by purpose so I can practise both of them and see how each one works and the differences between them.
-  In my Yu-Gi-Oh game cards have been saved into binary file named "cards.txt". From there random lines are being read and cards with corresponding attributes (name, attack, defence) are created. These cards are added into a std::vector of cards that represents the player's deck. When both players have created decks, game starts.
-  A game turn consists of a Draw phase, Standby phase, Battle phase and End phase. During each phase different actions are taken. In draw phase a card from the deck is drawn and is added to the player's hand. During standby phase the player can play the recently drawn card on the field in attack or defence mode. In battle phase a player chooses a card from his field to attack with and then chooses a card from the enemy's field to attack. Taking into account the attack power of the attacking card and the attack/defence power of the defending card, different calculations are made. In end phase all battles end and next player's turn begins.
+# Yu-Gi-Oh Game Recreation
+
+## Overview
+A command-line recreation of the popular card game Yu-Gi-Oh built in C++. This project demonstrates object-oriented design, advanced C++ features (move semantics, input validation), and proper game flow management.
+
+## Project Structure
+
+### Classes
+- **Card**: Represents a single card with attributes
+- **Player**: Manages player state
+- **Game**: Orchestrates game flow and battle mechanics
+
+## Gameplay
+
+### Card System
+Cards are loaded from `saved_cards.txt` and randomly assigned to each player's deck. Each card has:
+- Name
+- Attack Power
+- Defence Power
+- Position (attack/defence)
+
+### Game Flow
+A turn consists of four phases:
+
+1. **Draw Phase**: Player draws one card from their deck to their hand
+2. **Standby Phase**: Player can summon cards from hand to the field in attack or defence position, or change card positions
+3. **Battle Phase**: Player selects an attacking card from their field and a defending card from opponent's field. Damage is calculated based on the card powers and positions
+4. **End Phase**: Turn ends and passes to the opponent
+
+## Key Features
+- Robust input validation with error recovery
+- Move semantics for efficient card transfers
+- Modular function design with separation of concerns
+- Proper resource management and memory efficiency
