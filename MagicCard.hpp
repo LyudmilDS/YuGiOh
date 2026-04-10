@@ -6,33 +6,39 @@
 #include <string> //string
 
 //user includes
-#include "BaseCard.hpp"
+#include "EffectCard.hpp"
 
-
-enum class EffectPolarity
+enum class EffectType
 {
-	POSITIVE,
-	NEGATIVE,
+    BUFF_DEBUFF_ATTACK,
+    BUFF_DEBUFF_DEFENCE,
+    DAMAGE_HEAL
 };
 
-class MagicCard : public BaseCard
+class MagicCard : public EffectCard
 {
 private:
-	std::string m_effect;
-	EffectPolarity m_effect_polarity;
+    EffectType m_effect_type;
+    double m_effect_value;
 
 public:
-	MagicCard(const std::string& name, const std::string& effect, const EffectPolarity effect_polarity);
-	MagicCard(const MagicCard& magic_card);
+    MagicCard(const std::string& name, 
+            const std::string& effect, 
+            const EffectPolarity effect_polarity, 
+            const EffectType effect_type,
+            const double effect_value);
+    MagicCard(const MagicCard& magic_card);
 
-	//getters
-	const std::string& getEffect() const;
-	const EffectPolarity getEffectPolarity() const;
+    //getters
+    const EffectType getEffectType() const;
+    const double getEffectValue() const;
 
-	//setters
-	void setEffect(const std::string& effect);
-	void setEffectPolarity(const EffectPolarity effect_polarity);
+    //setters
+    void setEffectType(const EffectType effect_type);
+    void setEffectValue(const double effect_value);
 
+    friend std::ostream& operator << (std::ostream& stream, const MagicCard& card);
 };
+
 
 #endif // !MAGICCARD_HPP
