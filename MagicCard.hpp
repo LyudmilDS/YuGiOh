@@ -1,12 +1,12 @@
-#ifndef MAGIC_CARD_HPP
-#define MAGIC_CARD_HPP
+#ifndef MAGICCARD_HPP
+#define MAGICCARD_HPP
 
 //system includes
-#include<iostream> //ostream
-#include<string> //string
+#include <iostream> //ostream
+#include <string> //string
 
 //user includes
-#include "MonsterCard.hpp"
+#include "BaseCard.hpp"
 
 class MagicCard : public BaseCard
 {
@@ -26,4 +26,4 @@ public:
 	friend std::ostream& operator << (std::ostream& stream, const MagicCard& magic_card);
 };
 
-#endif // !MAGIC_CARD_HPP
+#endif // !MAGICCARD_HPP

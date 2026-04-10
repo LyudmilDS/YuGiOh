@@ -1,6 +1,6 @@
 //system includes
-#include<iostream> //ostream
-#include<string> //string
+#include <iostream> //ostream
+#include <string> //string
 
 //user includes
 #include "MagicCard.hpp"
