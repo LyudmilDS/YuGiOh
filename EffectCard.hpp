@@ -21,6 +21,7 @@ protected:
 	EffectPolarity m_effect_polarity;
 
 public:
+	EffectCard();
 	EffectCard(const std::string& name, const std::string& effect, const EffectPolarity effect_polarity);
 	EffectCard(const EffectCard& effect_card);
 

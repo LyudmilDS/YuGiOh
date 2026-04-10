@@ -154,7 +154,7 @@ void Player::printGraveyard()
 void Player::loadingDeck(const int nr_cards_in_deck)
 {
 	std::vector<int> rows_read_cards = generate_rand_rows(nr_cards_in_deck);
-	std::vector<MonsterCard> loaded_cards = loadFromFile();
+	std::vector<MonsterCard> loaded_cards = loadMonsterCardsFromFile();
 
 	for (size_t i = 0; i < rows_read_cards.size(); i++)
 	{

@@ -19,3 +19,11 @@ const std::string& BaseCard::getName() const
 {
 	return m_name;
 }
+
+//-------------------------------------------
+//setters
+
+void BaseCard::setName(const std::string& name)
+{
+	m_name = name;
+}

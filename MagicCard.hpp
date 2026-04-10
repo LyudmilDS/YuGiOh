@@ -22,6 +22,7 @@ private:
     double m_effect_value;
 
 public:
+    MagicCard();
     MagicCard(const std::string& name, 
             const std::string& effect, 
             const EffectPolarity effect_polarity, 

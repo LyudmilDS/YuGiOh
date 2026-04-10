@@ -19,6 +19,9 @@ public:
 
 	//getters
 	const std::string& getName() const;
+
+	//setters
+	void setName(const std::string& name);
 };
 
 

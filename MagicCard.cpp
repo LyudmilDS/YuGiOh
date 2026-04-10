@@ -8,6 +8,9 @@
 //-------------------------------------------
 // MagicCard Class implementation
 
+MagicCard::MagicCard() : EffectCard(), m_effect_type(EffectType::BUFF_DEBUFF_ATTACK), m_effect_value(0)
+{
+}
 MagicCard::MagicCard(const std::string& name, 
                     const std::string& effect, 
                     const EffectPolarity effect_polarity, 

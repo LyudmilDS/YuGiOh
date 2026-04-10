@@ -8,6 +8,10 @@
 //-------------------------------------------
 //Effect Card Class implementation
 
+EffectCard::EffectCard() : BaseCard(), m_effect(""), m_effect_polarity(EffectPolarity::POSITIVE)
+{
+}
+
 EffectCard::EffectCard(const std::string& name, const std::string& effect, const EffectPolarity effect_polarity) :
 	BaseCard(name),
 	m_effect(effect),
