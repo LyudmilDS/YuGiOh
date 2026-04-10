@@ -24,7 +24,7 @@ public:
 	//member variables have build-in deconstructors
 	~Player() = default;
 
-	//geters
+	//getters
 	int getLivePoints();
 	std::string& getName();
 	std::vector<MonsterCard>& getHand();

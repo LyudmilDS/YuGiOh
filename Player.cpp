@@ -70,7 +70,7 @@ Player::Player(const Player& player) :
 
 
 //-------------------------------------------
-//geters
+//getters
 
 int Player::getLivePoints()
 {
@@ -96,9 +96,6 @@ std::vector<MonsterCard>& Player::getGraveyard()
 {
 	return  m_graveyard;
 }
-
-//-------------------------------------------
-//seters
 
 void Player::receiveDamage(int received_damage)
 {

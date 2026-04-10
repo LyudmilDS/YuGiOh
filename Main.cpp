@@ -8,5 +8,4 @@ int main()
      Game game(yugi_muto, pegasus);
 
 	game.startGame(yugi_muto, pegasus);
-
 }
