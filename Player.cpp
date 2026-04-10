@@ -54,21 +54,6 @@ Player::Player(const std::string& player_name)
 	m_graveyard.reserve(10);
 }
 
-Player::Player(const Player& player) :
-	m_name(player.m_name),
-	m_hand(player.m_hand),
-	m_field(player.m_field),
-	m_deck(player.m_deck),
-	m_graveyard(player.m_graveyard),
-	m_live_points(player.m_live_points)
-{
-	m_hand.reserve(player.m_hand.capacity());
-	m_field.reserve(player.m_field.capacity());
-	m_deck.reserve(player.m_deck.capacity());
-	m_graveyard.reserve(player.m_graveyard.capacity());
-}
-
-
 //-------------------------------------------
 //getters
 
@@ -82,17 +67,17 @@ std::string& Player::getName()
 	return  m_name;
 }
 
-std::vector<MonsterCard>& Player::getHand()
+std::vector<std::unique_ptr<BaseCard>>& Player::getHand()
 {
 	return  m_hand;
 }
 
-std::vector<MonsterCard>& Player::getField()
+std::vector<std::unique_ptr<BaseCard>>& Player::getField()
 {
 	return  m_field;
 }
 
-std::vector<MonsterCard>& Player::getGraveyard()
+std::vector<std::unique_ptr<BaseCard>>& Player::getGraveyard()
 {
 	return  m_graveyard;
 }
@@ -111,9 +96,20 @@ void Player::printHand()
 
 	int nr_card = 1;
 
-	for (const MonsterCard& card : m_hand)
+	for (const auto& card : m_hand)
 	{
-		std::cout << "Card " << nr_card << ":\n" << card << "\n";
+		std::cout << "Card " << nr_card << ":\n";
+
+		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
+		{
+			std::cout << *monster;
+		} 
+		else if (auto* magic = dynamic_cast<MagicCard*>(card.get())) 
+		{
+			std::cout << *magic;
+		}
+
+		std::cout << "\n";
 		nr_card++;
 	}
 }
@@ -124,10 +120,15 @@ void Player::printField()
 
 	int nr_card = 1;
 
-	for (const MonsterCard& card : m_field)
+	for (const auto& card : m_field)
 	{
-		std::cout << "Card " << nr_card << ":\n" << card << 
-			"In " << card.getPosition() << " position\n";
+		std::cout << "Card " << nr_card << ":\n";
+
+		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
+		{
+			std::cout << *monster << "In " << monster->getPosition() << " position\n";
+		}
+
 		nr_card++;
 	}
 }
@@ -138,9 +139,20 @@ void Player::printGraveyard()
 
 	int nr_card = 1;
 
-	for (const MonsterCard& card : m_graveyard)
+	for (const auto& card : m_graveyard)
 	{
-		std::cout << "Card " << nr_card << ":\n" << card << "\n";
+		std::cout << "Card " << nr_card << ":\n";
+
+		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
+		{
+			std::cout << *monster;
+		} 
+		else if (auto* magic = dynamic_cast<MagicCard*>(card.get())) 
+		{
+			std::cout << *magic;
+		}
+
+		std::cout << "\n";
 		nr_card++;
 	}
 }
@@ -150,8 +162,9 @@ void Player::printGraveyard()
 
 void Player::loadingDeck(const int nr_cards_in_deck)
 {
+	auto monster_pool = loadMonsterCardsFromFile();
+	auto magic_pool = loadMagicCardsFromFile();
 	std::vector<int> rows_read_cards = generate_rand_rows(nr_cards_in_deck);
-	std::vector<MonsterCard> loaded_cards = loadMonsterCardsFromFile();
 
 	for (size_t i = 0; i < rows_read_cards.size(); i++)
 	{
@@ -233,7 +246,10 @@ void Player::summonCard()
 
 		if (position == "attack" || position == "defence")
 		{
-			m_hand[card_number-1].setPosition(position);
+			if (auto* monster = dynamic_cast<MonsterCard*>(m_hand[card_number-1].get())) 
+			{
+				monster->setPosition(position);
+			}
 			m_field.push_back(std::move(m_hand[card_number-1]));
 			m_hand.erase(m_hand.begin() + card_number-1);
 
@@ -275,7 +291,9 @@ void Player::changeCardPosition()
 
 			if (card_number >= 1 && card_number <= m_field.size())
 			{
-				m_field[card_number-1].changePosition();
+				if (auto* m = dynamic_cast<MonsterCard*>(m_field[card_number-1].get())) {
+					m->changePosition();
+				}
 				break;
 			}
 		}
@@ -298,11 +316,14 @@ bool Player::canAttack()
 	}
 
 	// Check if all cards on the field are in defence position
-	for (const MonsterCard& card : m_field)
+	for (const auto& card : m_field)
 	{
-		if (card.getPosition() == "attack")
 		{
-			return true;
+			auto* monster = dynamic_cast<MonsterCard*>(card.get());
+			if (monster && monster->getPosition() == "attack")
+			{
+				return true;
+			}
 		}
 	}
 

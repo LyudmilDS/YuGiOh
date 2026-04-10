@@ -4,6 +4,7 @@
 //system includes
 #include<string>
 #include<vector>
+#include<memory>
 
 //user includes
 #include"MonsterCard.hpp"
@@ -12,24 +13,24 @@ class Player
 {
 private:
 	std::string m_name;
-	std::vector<MonsterCard> m_hand;
-	std::vector<MonsterCard> m_field;
-	std::vector<MonsterCard> m_deck;
-	std::vector<MonsterCard> m_graveyard;
+	std::vector<std::unique_ptr<BaseCard>> m_hand;
+	std::vector<std::unique_ptr<BaseCard>> m_field;
+	std::vector<std::unique_ptr<BaseCard>> m_deck;
+	std::vector<std::unique_ptr<BaseCard>> m_graveyard;
 	int m_live_points;
 
 public:
 	Player(const std::string& player_name);
-	Player(const Player& player);
+	Player(const Player& player) = delete; // Cards cannot be copied
 	//member variables have build-in deconstructors
 	~Player() = default;
 
 	//getters
 	int getLivePoints();
 	std::string& getName();
-	std::vector<MonsterCard>& getHand();
-	std::vector<MonsterCard>& getField();
-	std::vector<MonsterCard>& getGraveyard();
+	std::vector<std::unique_ptr<BaseCard>>& getHand();
+	std::vector<std::unique_ptr<BaseCard>>& getField();
+	std::vector<std::unique_ptr<BaseCard>>& getGraveyard();
 
 	//printing on the console
 	void printHand();

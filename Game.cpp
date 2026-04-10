@@ -181,14 +181,19 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 		"Enter the card number from enemy field you want to attack: ", 
 		false)-1;
 
-	MonsterCard& attacking_card = current_player.getField()[curr_player_selected_card];
-	MonsterCard& defending_card = enemy_player.getField()[enemy_player_selected_card];
+	auto* attacker = dynamic_cast<MonsterCard*>(current_player.getField()[curr_player_selected_card].get());
+	auto* defender = dynamic_cast<MonsterCard*>(enemy_player.getField()[enemy_player_selected_card].get());
+
+	if (!attacker || !defender) {
+		std::cout << "Error: Only monsters can participate in battle.\n";
+		return;
+	}
 
 	resolveBattle(
 		current_player, 
 		enemy_player, 
-		attacking_card, 
-		defending_card, 
+		*attacker, 
+		*defender, 
 		curr_player_selected_card, 
 		enemy_player_selected_card);
 
@@ -204,7 +209,7 @@ void Game::endPhase()
 	std::cout << "End of your turn. Now it's enemy turn.\n";
 }
 
-int Game::validateCardSelection(const std::vector<MonsterCard>& field, const std::string& prompt, bool requireAttackPosition)
+int Game::validateCardSelection(const std::vector<std::unique_ptr<BaseCard>>& field, const std::string& prompt, bool requireAttackPosition)
 {
 	std::cout << prompt;
 
@@ -221,7 +226,13 @@ int Game::validateCardSelection(const std::vector<MonsterCard>& field, const std
 
 			if (card_number >= 1 && card_number <= field_size)
 			{
-				if (requireAttackPosition && field[card_number - 1].getPosition() == std::string("defence"))
+				auto* monster = dynamic_cast<MonsterCard*>(field[card_number - 1].get());
+				if (!monster) { 
+					std::cout << "Selected card is not a monster.\n"; 
+					continue; 
+				}
+
+				if (requireAttackPosition && monster->getPosition() == "defence")
 				{
 					std::cout << "You can't attack with a card in defence position. You need to change its position first.\n" <<
 						prompt;

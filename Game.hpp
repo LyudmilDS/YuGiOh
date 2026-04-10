@@ -44,7 +44,7 @@ private:
 	/// @param prompt: The message to display when prompting for input.
 	/// @param requireAttackPosition: If true, rejects cards in defence position (for attacking cards).
 	/// @return The 1-based card index.
-	int validateCardSelection(const std::vector<MonsterCard>& field, const std::string& prompt, bool requireAttackPosition = false);
+	int validateCardSelection(const std::vector<std::unique_ptr<BaseCard>>& field, const std::string& prompt, bool requireAttackPosition = false);
 	
 	/// @brief Resolves the battle between an attacking card and a defending card.
 	/// @param current_player: The player whose card is attacking.

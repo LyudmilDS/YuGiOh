@@ -15,7 +15,7 @@ protected:
 public:
 	BaseCard() = default;
 	BaseCard(const std::string& name);
-	~BaseCard() = default;
+	virtual ~BaseCard() = default;
 
 	//getters
 	const std::string& getName() const;
