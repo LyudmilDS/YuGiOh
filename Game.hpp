@@ -7,7 +7,7 @@
 #include<vector> //vector
 
 //user includes
-#include"Card.hpp"
+#include"MonsterCard.hpp"
 #include"Player.hpp"
 
 class Game

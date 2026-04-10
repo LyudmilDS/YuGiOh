@@ -6,7 +6,7 @@
 #include <string> //string
 
 //user includes
-#include "Card.hpp"
+#include "MonsterCard.hpp"
 
 
 /// @brief Saves the given card in the saved_cards.txt file
