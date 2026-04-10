@@ -2,7 +2,6 @@
 #define BASECARD_HPP
 
 //system includes
-#include<iostream> //ostream
 #include<string> //string
 
 //user includes
@@ -16,6 +15,7 @@ protected:
 public:
 	BaseCard() = default;
 	BaseCard(const std::string& name);
+	~BaseCard() = default;
 
 	//getters
 	const std::string& getName() const;
