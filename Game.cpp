@@ -70,7 +70,7 @@ void Game::playerTurn(Player& current_player, Player& enemy_player)
 		}
 		else
 		{
-			std::cout << "Invalid input. Enter 'battle' or 'end'.\n";
+			std::cout << "Invalid input. Enter 'battle' or 'end': ";
 		}
 	}
 }
@@ -106,15 +106,17 @@ void Game::standByPhase(Player& current_player, Player& enemy_player)
 	{
 		if(std::cin >> action)
 		{
+			std::cin.ignore(10000, '\n');
 			if (action >= 1 && action <= 4)
 			{
-				std::cin.ignore();
 				break;
 			}
 		}
-
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 
 		std::cout << "Invalid action. Please enter a number between 1 and 4: ";
 	}
@@ -151,23 +153,36 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 
 	current_player.printField();
 
-	// validate user input for selecting attacking card
+	// choose attacking card and validate user input
 	int curr_player_selected_card = validateCardSelection(
 		current_player.getField(), 
 		"Enter the card number you want to attack with: ", 
 		true)-1;
 
+	// If enemy has no cards on the field, attack directly and end the battle phase
+	if(enemy_player.getField().size() == 0)
+	{
+		std::cout << "Enemy has no cards on the field. You attack directly and enemy loses " <<
+			current_player.getField()[curr_player_selected_card].getAttack() << " LP!\n";
+
+		enemy_player.receiveDamage(current_player.getField()[curr_player_selected_card].getAttack());
+
+		endPhase();
+
+		return;
+	}
+
 	std::cout << "Enemy field contains:\n";
 	enemy_player.printField();
 
-	// validate user input for selecting defending card
+	// choose defending card and validate user input
 	int enemy_player_selected_card = validateCardSelection(
 		enemy_player.getField(),
 		"Enter the card number from enemy field you want to attack: ", 
 		false)-1;
 
-	Card& attacking_card = current_player.getField()[curr_player_selected_card];
-	Card& defending_card = enemy_player.getField()[enemy_player_selected_card];
+	MonsterCard& attacking_card = current_player.getField()[curr_player_selected_card];
+	MonsterCard& defending_card = enemy_player.getField()[enemy_player_selected_card];
 
 	resolveBattle(
 		current_player, 
@@ -189,18 +204,20 @@ void Game::endPhase()
 	std::cout << "End of your turn. Now it's enemy turn.\n";
 }
 
-int Game::validateCardSelection(const std::vector<Card>& field, const std::string& prompt, bool requireAttackPosition)
+int Game::validateCardSelection(const std::vector<MonsterCard>& field, const std::string& prompt, bool requireAttackPosition)
 {
 	std::cout << prompt;
 
 	int card_number;
 	int field_size = field.size();
 
+	// validate user input
 	while (true)
 	{
 		if(std::cin >> card_number)
 		{
-			std::cin.ignore();
+			// clears '\n' from the input buffer
+			std::cin.ignore(10000, '\n');
 
 			if (card_number >= 1 && card_number <= field_size)
 			{
@@ -214,9 +231,11 @@ int Game::validateCardSelection(const std::vector<Card>& field, const std::strin
 				break;
 			}
 		}
-
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 
 		std::cout << "Invalid input. Please enter a number between 1 and " << field_size << ": ";
 	}
@@ -226,8 +245,8 @@ int Game::validateCardSelection(const std::vector<Card>& field, const std::strin
 
 void Game::resolveBattle(Player& current_player, 
 						Player& enemy_player, 
-						const Card& attacking_card,
-						const Card& defending_card, 
+						const MonsterCard& attacking_card,
+						const MonsterCard& defending_card, 
 						int attacking_card_index, 
 						int defending_card_index)
 {

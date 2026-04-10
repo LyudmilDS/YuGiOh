@@ -44,7 +44,7 @@ private:
 	/// @param prompt: The message to display when prompting for input.
 	/// @param requireAttackPosition: If true, rejects cards in defence position (for attacking cards).
 	/// @return The 1-based card index.
-	int validateCardSelection(const std::vector<Card>& field, const std::string& prompt, bool requireAttackPosition = false);
+	int validateCardSelection(const std::vector<MonsterCard>& field, const std::string& prompt, bool requireAttackPosition = false);
 	
 	/// @brief Resolves the battle between an attacking card and a defending card.
 	/// @param current_player: The player whose card is attacking.
@@ -53,8 +53,8 @@ private:
 	/// @param defending_card: Reference to the defending card.
 	/// @param attacking_card_index: The index of the attacking card on the field.
 	/// @param defending_card_index: The index of the defending card on the field.
-	void resolveBattle(Player& current_player, Player& enemy_player, const Card& attacking_card, 
-		const Card& defending_card, int attacking_card_index, int defending_card_index);
+	void resolveBattle(Player& current_player, Player& enemy_player, const MonsterCard& attacking_card, 
+		const MonsterCard& defending_card, int attacking_card_index, int defending_card_index);
 };
 
 

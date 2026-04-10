@@ -11,7 +11,7 @@
 
 /// @brief Saves the given card in the saved_cards.txt file
 /// This is mainly done as a preparation before the game starts.
-inline void saveToFile(const Card& saved_card)
+inline void saveToFile(const MonsterCard& saved_card)
 {
     std::ofstream file("saved_cards.txt", std::ios::app);
 
@@ -29,7 +29,7 @@ inline void saveToFile(const Card& saved_card)
 
 /// @brief Load all cards from a saved_cards.txt file
 /// Returns a vector by value, which is fine, because of move semantics in C++11 and later
-inline std::vector<Card> loadFromFile()
+inline std::vector<MonsterCard> loadFromFile()
 {
     std::ifstream file("saved_cards.txt");
 
@@ -41,8 +41,8 @@ inline std::vector<Card> loadFromFile()
 
     int attack = 0, defence = 0;
     std::string name;
-    Card curr_loaded_card;
-    std::vector<Card> loaded_cards;
+    MonsterCard curr_loaded_card;
+    std::vector<MonsterCard> loaded_cards;
 
     while (std::getline(file, name, '\t'))
     {

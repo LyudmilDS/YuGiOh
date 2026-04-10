@@ -12,10 +12,10 @@ class Player
 {
 private:
 	std::string m_name;
-	std::vector<Card> m_hand;
-	std::vector<Card> m_field;
-	std::vector<Card> m_deck;
-	std::vector<Card> m_graveyard;
+	std::vector<MonsterCard> m_hand;
+	std::vector<MonsterCard> m_field;
+	std::vector<MonsterCard> m_deck;
+	std::vector<MonsterCard> m_graveyard;
 	int m_live_points;
 
 public:
@@ -27,9 +27,9 @@ public:
 	//geters
 	int getLivePoints();
 	std::string& getName();
-	std::vector<Card>& getHand();
-	std::vector<Card>& getField();
-	std::vector<Card>& getGraveyard();
+	std::vector<MonsterCard>& getHand();
+	std::vector<MonsterCard>& getField();
+	std::vector<MonsterCard>& getGraveyard();
 
 	//printing on the console
 	void printHand();
@@ -51,7 +51,7 @@ public:
 	/// @brief Moves the last card from the deck to the hand.
 	void draw();
 
-	const Card& lastDrawnCard();
+	const MonsterCard& lastDrawnCard();
 
 	/// @brief Reduces the player's live points by the specified amount.
 	/// @param received_damage: The amount of damage to receive.

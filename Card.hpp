@@ -1,11 +1,11 @@
-#ifndef CARD_H
-#define CARD_H
+#ifndef MONSTERCARD_H
+#define MONSTERCARD_H
 
 //system includes
 #include<iostream> //ostream
 #include<string> //string
 
-class Card
+class MonsterCard
 {
 private:
 	std::string m_name;
@@ -14,9 +14,9 @@ private:
 	int m_defence;
 
 public:
-	Card();
-	Card(const Card& card);
-	Card(const std::string& name, int atk, int def);
+	MonsterCard();
+	MonsterCard(const MonsterCard& card);
+	MonsterCard(const std::string& name, int atk, int def);
 
 	//geters
 	const int getAttack() const;
@@ -32,10 +32,8 @@ public:
 
 	void changePosition();
 
-
-	friend std::ostream& operator << (std::ostream& stream, const Card& card);
+	friend std::ostream& operator << (std::ostream& stream, const MonsterCard& card);
 };
 
 
-
-#endif // !CARD_H
+#endif // !MONSTERCARD_H

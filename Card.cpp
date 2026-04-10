@@ -7,13 +7,13 @@
 
 
 //-------------------------------------------
-//Card Class implementation
+//MonsterCard Class implementation
 
-Card::Card() : m_name(""), m_position("unplayed"), m_attack(0), m_defence(0)
+MonsterCard::MonsterCard() : m_name(""), m_position("unplayed"), m_attack(0), m_defence(0)
 {
 }
 
-Card::Card(const std::string& name, int atk, int def) :
+MonsterCard::MonsterCard(const std::string& name, int atk, int def) :
 	m_name(name),
 	m_position("unplayed"),
 	m_attack(atk),
@@ -21,7 +21,7 @@ Card::Card(const std::string& name, int atk, int def) :
 {
 }
 
-Card::Card(const Card& card) :
+MonsterCard::MonsterCard(const MonsterCard& card) :
 	m_name(card.m_name),
 	m_position(card.m_position),
 	m_attack(card.m_attack),
@@ -32,19 +32,19 @@ Card::Card(const Card& card) :
 //-------------------------------------------
 //geters
 
-const int Card::getAttack() const
+const int MonsterCard::getAttack() const
 {
 	return  m_attack;
 }
-const int Card::getDefence()const
+const int MonsterCard::getDefence()const
 {
 	return  m_defence;
 }
-const std::string& Card::getPosition() const
+const std::string& MonsterCard::getPosition() const
 {
 	return  m_position;
 }
-const std::string& Card::getName()const
+const std::string& MonsterCard::getName()const
 {
 	return  m_name;
 }
@@ -52,25 +52,25 @@ const std::string& Card::getName()const
 //-------------------------------------------
 //seters
 
-void Card::setAttack(int atk)
+void MonsterCard::setAttack(int atk)
 {
 	m_attack = atk;
 }
-void Card::setDefence(int def)
+void MonsterCard::setDefence(int def)
 {
 	m_defence = def;
 }
-void Card::setPosition(const std::string& pos)
+void MonsterCard::setPosition(const std::string& pos)
 {
 	m_position = pos;
 }
-void Card::setName(const std::string& name)
+void MonsterCard::setName(const std::string& name)
 {
 	m_name = name;
 }
 
 
-void Card::changePosition()
+void MonsterCard::changePosition()
 {
 	if (m_position == "attack")
 	{
@@ -82,7 +82,7 @@ void Card::changePosition()
 	}
 }
 
-std::ostream& operator<<(std::ostream& stream, const Card& card)
+std::ostream& operator<<(std::ostream& stream, const MonsterCard& card)
 {
 	stream << "Name: " << card.m_name << "\n" <<
 		"attack: " << card.m_attack << "\t defence:" << card.m_defence << "\n";

@@ -82,17 +82,17 @@ std::string& Player::getName()
 	return  m_name;
 }
 
-std::vector<Card>& Player::getHand()
+std::vector<MonsterCard>& Player::getHand()
 {
 	return  m_hand;
 }
 
-std::vector<Card>& Player::getField()
+std::vector<MonsterCard>& Player::getField()
 {
 	return  m_field;
 }
 
-std::vector<Card>& Player::getGraveyard()
+std::vector<MonsterCard>& Player::getGraveyard()
 {
 	return  m_graveyard;
 }
@@ -114,7 +114,7 @@ void Player::printHand()
 
 	int nr_card = 1;
 
-	for (const Card& card : m_hand)
+	for (const MonsterCard& card : m_hand)
 	{
 		std::cout << "Card " << nr_card << ":\n" << card << "\n";
 		nr_card++;
@@ -127,7 +127,7 @@ void Player::printField()
 
 	int nr_card = 1;
 
-	for (const Card& card : m_field)
+	for (const MonsterCard& card : m_field)
 	{
 		std::cout << "Card " << nr_card << ":\n" << card << 
 			"In " << card.getPosition() << " position\n";
@@ -141,7 +141,7 @@ void Player::printGraveyard()
 
 	int nr_card = 1;
 
-	for (const Card& card : m_graveyard)
+	for (const MonsterCard& card : m_graveyard)
 	{
 		std::cout << "Card " << nr_card << ":\n" << card << "\n";
 		nr_card++;
@@ -154,7 +154,7 @@ void Player::printGraveyard()
 void Player::loadingDeck(const int nr_cards_in_deck)
 {
 	std::vector<int> rows_read_cards = generate_rand_rows(nr_cards_in_deck);
-	std::vector<Card> loaded_cards = loadFromFile();
+	std::vector<MonsterCard> loaded_cards = loadFromFile();
 
 	for (size_t i = 0; i < rows_read_cards.size(); i++)
 	{
@@ -183,10 +183,10 @@ void Player::draw()
 {
 	m_hand.push_back(std::move(m_deck.back()));
 
-	std::cout << "You drew:" << lastDrawnCard() << "\n";
+	std::cout << "You drew:\n" << lastDrawnCard() << "\n";
 }
 
-const Card& Player::lastDrawnCard()
+const MonsterCard& Player::lastDrawnCard()
 {
 	return m_hand[m_hand.size() - 1];
 }
@@ -205,7 +205,7 @@ void Player::summonCard()
 
 	std::cout << "Enter which card you want to summon: ";
 
-	//validate user input
+	// validate user input
 	int card_number;
 	while(true)
 	{
@@ -218,15 +218,17 @@ void Player::summonCard()
 				break;
 			}
 		}
-
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 		std::cout << "Invalid input. Enter a number between 1 and " << m_hand.size() << ": ";
 	}
 	
 	std::cout << "Enter in what position you want to summon (attack/defence): ";
 
-	//validate user input
+	// validate user input
 	std::string position;
 	while(true)
 	{
@@ -241,7 +243,7 @@ void Player::summonCard()
 			break;
 		}
 
-		std::cout << "Invalid input! Enter 'attack' or 'defence'\n";
+		std::cout << "Invalid input! Enter 'attack' or 'defence': ";
 	}
 }
 
@@ -266,7 +268,7 @@ void Player::changeCardPosition()
 
 	std::cout << "Enter the number of the card you want to change its position: ";
 
-	//validate user input
+	// validate user input
 	int card_number;
 	while(true)
 	{
@@ -280,9 +282,11 @@ void Player::changeCardPosition()
 				break;
 			}
 		}
-
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 		std::cout << "Invalid input. Enter a number between 1 and " << m_field.size() << ": ";
 	}
 }
@@ -297,7 +301,7 @@ bool Player::canAttack()
 	}
 
 	// Check if all cards on the field are in defence position
-	for (const Card& card : m_field)
+	for (const MonsterCard& card : m_field)
 	{
 		if (card.getPosition() == "attack")
 		{
