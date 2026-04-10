@@ -7,6 +7,7 @@
 
 //user includes
 
+
 class BaseCard
 {
 protected:

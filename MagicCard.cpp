@@ -9,15 +9,17 @@
 //-------------------------------------------
 //Magic Card Class implementation
 
-MagicCard::MagicCard(const std::string& name, const std::string& effect) :
+MagicCard::MagicCard(const std::string& name, const std::string& effect, const EffectPolarity effect_polarity) :
 	BaseCard(name),
-	m_effect(effect)
+	m_effect(effect),
+	m_effect_polarity(effect_polarity)
 {
 }
 
 MagicCard::MagicCard(const MagicCard& magic_card) :
 	BaseCard(magic_card),
-	m_effect(magic_card.m_effect)
+	m_effect(magic_card.m_effect),
+	m_effect_polarity(magic_card.m_effect_polarity)
 {
 }
 
@@ -29,6 +31,11 @@ const std::string& MagicCard::getEffect() const
 	return m_effect;
 }
 
+const EffectPolarity MagicCard::getEffectPolarity() const
+{
+	return m_effect_polarity;
+}
+
 //-------------------------------------------
 //setters
 
@@ -37,13 +44,8 @@ void MagicCard::setEffect(const std::string& effect)
 	m_effect = effect;
 }
 
-//-------------------------------------------
-//operator overload
-
-std::ostream& operator << (std::ostream& stream, const MagicCard& magic_card)
+void MagicCard::setEffectPolarity(const EffectPolarity effect_polarity)
 {
-	stream << "Magic Card Name: " << magic_card.m_name << "\n" <<
-		"Effect: " << magic_card.m_effect << "\n";
-
-	return stream;
+	m_effect_polarity = effect_polarity;
 }
+
