@@ -19,6 +19,8 @@ public:
 	MonsterCard();
 	MonsterCard(const MonsterCard& card);
 	MonsterCard(const std::string& name, int atk, int def);
+	~MonsterCard() = default;
+
 
 	//geters
 	const int getAttack() const;
