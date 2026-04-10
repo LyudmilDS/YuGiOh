@@ -9,12 +9,12 @@
 //-------------------------------------------
 //MonsterCard Class implementation
 
-MonsterCard::MonsterCard() : m_name(""), m_position("unplayed"), m_attack(0), m_defence(0)
+MonsterCard::MonsterCard() : BaseCard(), m_position("unplayed"), m_attack(0), m_defence(0)
 {
 }
 
 MonsterCard::MonsterCard(const std::string& name, int atk, int def) :
-	m_name(name),
+	BaseCard(name),
 	m_position("unplayed"),
 	m_attack(atk),
 	m_defence(def)
@@ -22,7 +22,7 @@ MonsterCard::MonsterCard(const std::string& name, int atk, int def) :
 }
 
 MonsterCard::MonsterCard(const MonsterCard& card) :
-	m_name(card.m_name),
+	BaseCard(card),
 	m_position(card.m_position),
 	m_attack(card.m_attack),
 	m_defence(card.m_defence)

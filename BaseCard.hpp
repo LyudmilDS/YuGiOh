@@ -14,6 +14,7 @@ protected:
 	std::string m_name;
 
 public:
+	BaseCard() = default;
 	BaseCard(const std::string& name);
 
 	//getters

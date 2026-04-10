@@ -5,10 +5,12 @@
 #include<iostream> //ostream
 #include<string> //string
 
-class MonsterCard
+//user includes
+#include "BaseCard.hpp"
+
+class MonsterCard : public BaseCard
 {
 private:
-	std::string m_name;
 	std::string m_position;
 	int m_attack;
 	int m_defence;
