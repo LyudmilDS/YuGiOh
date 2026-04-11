@@ -3,6 +3,7 @@
 #include <stdexcept> //std::out_of_range
 #include <iostream> //getline, cout
 #include <fstream> //ifstream
+#include <memory> //unique_ptr
 #include <stdlib.h> //srand, rand
 #include <string> //string
 #include <time.h> //time
@@ -121,7 +122,7 @@ void Player::printField()
 
 		if (auto monster = dynamic_cast<MonsterCard*>(card.get())) 
 		{
-			std::cout << *monster << "In " << monster->getPosition() << " position\n";
+			std::cout << "In " << monster->getPosition() << " position\n";
 		}
 
 		nr_card++;
