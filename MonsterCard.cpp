@@ -82,9 +82,8 @@ void MonsterCard::changePosition()
 	}
 }
 
-std::ostream& operator<<(std::ostream& stream, const MonsterCard& card)
+void MonsterCard::print(std::ostream& stream) const
 {
-	stream << "Name: " << card.m_name << "\n" <<
-		"attack: " << card.m_attack << "\t defence:" << card.m_defence << "\n";
-	return stream;
+	stream << "Name: " << m_name << "\n" <<
+		"attack: " << m_attack << "\t defence:" << m_defence << "\n";
 }

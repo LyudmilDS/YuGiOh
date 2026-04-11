@@ -3,6 +3,7 @@
 
 //system includes
 #include<string> //string
+#include<iostream> //ostream
 
 //user includes
 
@@ -22,6 +23,10 @@ public:
 
 	//setters
 	void setName(const std::string& name);
+
+	virtual void print(std::ostream& stream) const;
+
+	friend std::ostream& operator<<(std::ostream& stream, const BaseCard& card);
 };
 
 

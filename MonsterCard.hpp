@@ -36,7 +36,7 @@ public:
 
 	void changePosition();
 
-	friend std::ostream& operator << (std::ostream& stream, const MonsterCard& card);
+	void print(std::ostream& stream) const override;
 };
 
 

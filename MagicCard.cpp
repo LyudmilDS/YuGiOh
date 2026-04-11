@@ -58,49 +58,48 @@ void MagicCard::setEffectValue(const double effect_value)
 //-------------------------------------------
 //operator overloading
 
-std::ostream& operator<<(std::ostream& stream, const MagicCard& card)
+void MagicCard::print(std::ostream& stream) const
 {
-    stream << "Name: " << card.getName() << "\n"
-           << "Effect: " << card.getEffect() << "\n"
+    stream << "Name: " << getName() << "\n"
+           << "Effect: " << getEffect() << "\n"
            << "Effect Type: ";
     
-    switch (card.getEffectType())
+    switch (getEffectType())
     {
         case EffectType::BUFF_DEBUFF_ATTACK:
         {
-            if (card.getEffectPolarity() == EffectPolarity::POSITIVE)
+            if (getEffectPolarity() == EffectPolarity::POSITIVE)
             {
-                stream << "Increase Attack with " << card.getEffectValue() << "\n";
+                stream << "Increase Attack with " << getEffectValue() << "\n";
             }
             else
             {
-                stream << "Decrease Attack with " << card.getEffectValue() << "\n";
+                stream << "Decrease Attack with " << getEffectValue() << "\n";
             }
             break;
         }
         case EffectType::BUFF_DEBUFF_DEFENCE:
         {
-            if (card.getEffectPolarity() == EffectPolarity::POSITIVE)
+            if (getEffectPolarity() == EffectPolarity::POSITIVE)
             {
-                stream << "Increase Defence with " << card.getEffectValue() << "\n";
+                stream << "Increase Defence with " << getEffectValue() << "\n";
             }
             else            {
-                stream << "Decrease Defence with " << card.getEffectValue() << "\n";
+                stream << "Decrease Defence with " << getEffectValue() << "\n";
             }
             break;
         }
         case EffectType::DAMAGE_HEAL:
         {
-            if (card.getEffectPolarity() == EffectPolarity::POSITIVE)
+            if (getEffectPolarity() == EffectPolarity::POSITIVE)
             {
-                stream << "Heal with " << card.getEffectValue() << "\n";
+                stream << "Heal with " << getEffectValue() << "\n";
             }
             else
             {
-                stream << "Damage with " << card.getEffectValue() << "\n";
+                stream << "Damage with " << getEffectValue() << "\n";
             }
             break;
         }
     }
-    return stream;
 }

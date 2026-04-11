@@ -38,7 +38,7 @@ public:
     void setEffectType(const EffectType effect_type);
     void setEffectValue(const double effect_value);
 
-    friend std::ostream& operator << (std::ostream& stream, const MagicCard& card);
+    void print(std::ostream& stream) const override;
 };
 
 
