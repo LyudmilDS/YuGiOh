@@ -3,6 +3,7 @@
 
 //system includes
 #include<iostream> //cout
+#include<memory> //unique_ptr
 #include<string> //string
 #include<vector> //vector
 
@@ -13,8 +14,8 @@
 class Game
 {
 private:
-	Player m_player1;
-	Player m_player2;
+	std::unique_ptr<Player> m_player1;
+	std::unique_ptr<Player> m_player2;
 
 public:
 	Game() = delete;

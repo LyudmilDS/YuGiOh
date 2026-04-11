@@ -1,5 +1,6 @@
 //system includes
 #include<iostream> //cout
+#include<memory> //unique_ptr
 #include<string> //string
 #include<vector> //vector
 
@@ -11,7 +12,9 @@
 //-------------------------------------------
 //Game Class implementation
 
-Game::Game(const std::string& player1_name, const std::string& player2_name) : m_player1(player1_name), m_player2(player2_name)
+Game::Game(const std::string& player1_name, const std::string& player2_name) :
+	m_player1(std::make_unique<Player>(player1_name)),
+	m_player2(std::make_unique<Player>(player2_name))
 {
 }
 
@@ -19,13 +22,14 @@ void Game::startGame()
 {
 	int turn_nr = 1;
 
-	std::cout << "------------------------------\n" <<
+	std::cout << 
+		"------------------------------\n" <<
 		"|  Prepare for the game. \n" <<
 		"|  Loading decks... \n" <<
 		"------------------------------\n";
 
-	m_player1.loadingDeck(10);
-	m_player2.loadingDeck(10);
+	m_player1.get()->loadingDeck(10);
+	m_player2.get()->loadingDeck(10);
 
 	while (true)
 	{
@@ -34,20 +38,20 @@ void Game::startGame()
 			std::cout << 
 			"------------------------------\n" <<
 			"|  Turn " << turn_nr << ":\n" <<
-			"|  " << m_player1.getName() <<"(" << m_player1.getLivePoints() << " LP)" << " plays \n" <<
+			"|  " << m_player1.get()->getName() <<"(" << m_player1.get()->getLivePoints() << " LP)" << " plays \n" <<
 			"------------------------------\n";
 
-			playerTurn(m_player1, m_player2);
+			playerTurn(*m_player1.get(), *m_player2.get());
 		}
 		else
 		{
 			std::cout << 
 			"------------------------------\n" <<
 			"|  Turn " << turn_nr << ":\n" <<
-			"|  " << m_player2.getName() <<"(" << m_player2.getLivePoints() << " LP)" << " plays \n" <<
+			"|  " << m_player2.get()->getName() <<"(" << m_player2.get()->getLivePoints() << " LP)" << " plays \n" <<
 			"------------------------------\n";
 
-			playerTurn(m_player2, m_player1);
+			playerTurn(*m_player2.get(), *m_player1.get());
 		}
 		++turn_nr;
 	}
