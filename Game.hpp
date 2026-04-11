@@ -18,10 +18,12 @@ private:
 
 public:
 	Game() = delete;
-	Game(const Player& player1, const Player& player2);
+	Game(const std::string& player1_name, const std::string& player2_name);
+	~Game() = default;
+
 
 	/// @brief Main function that runs the game loop.
-	void startGame(Player& player1, Player& player2);
+	void startGame();
 
 	/// @brief Handles the turn for a specific player.
 	void playerTurn(Player& current_player, Player& enemy_player);
@@ -53,8 +55,12 @@ private:
 	/// @param defending_card: Reference to the defending card.
 	/// @param attacking_card_index: The index of the attacking card on the field.
 	/// @param defending_card_index: The index of the defending card on the field.
-	void resolveBattle(Player& current_player, Player& enemy_player, const MonsterCard& attacking_card, 
-		const MonsterCard& defending_card, int attacking_card_index, int defending_card_index);
+	void resolveBattle(Player& current_player, 
+						Player& enemy_player, 
+						const MonsterCard& attacking_card, 
+						const MonsterCard& defending_card, 
+						int attacking_card_index, 
+						int defending_card_index);
 };
 
 

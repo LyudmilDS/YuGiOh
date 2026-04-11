@@ -18,11 +18,13 @@
 //-------------------------------------------
 //Utilities
 
-//the number of all cards saved in the card_file.txt
-const int NR_SAVED_CARDS = 16;
+// the number of all cards saved in the card_file.txt
+const int NR_SAVED_MONSTER_CARDS = 18;
+const int NR_SAVED_MAGIC_CARDS = 3;
+const int NR_SAVED_CARDS = NR_SAVED_MONSTER_CARDS + NR_SAVED_MAGIC_CARDS;
 
-//generates a vector of 'NR_SAVED_CARDS' random numbers in the range [0, NR_SAVED_CARDS)
-std::vector<int> generate_rand_rows(int nr_rows)
+// generates a vector of 'NR_SAVED_CARDS' random numbers in the range [0, NR_SAVED_CARDS)
+std::vector<int> generate_rand_cards(int nr_rows)
 {
 	std::vector<int> rows_read_cards(nr_rows);
 
@@ -33,7 +35,7 @@ std::vector<int> generate_rand_rows(int nr_rows)
 		rows_read_cards[i] = rand() % NR_SAVED_CARDS;
 	}
 
-	//sorting the array of random numbers to make the reading from the file easier
+	// sorting the array of random numbers to make the reading from the file easier
 	std::sort(rows_read_cards.begin(), rows_read_cards.end());
 
 	return rows_read_cards;
@@ -98,16 +100,8 @@ void Player::printHand()
 
 	for (const auto& card : m_hand)
 	{
-		std::cout << "Card " << nr_card << ":\n";
-
-		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
-		{
-			std::cout << *monster;
-		} 
-		else if (auto* magic = dynamic_cast<MagicCard*>(card.get())) 
-		{
-			std::cout << *magic;
-		}
+		std::cout << "Card " << nr_card << ":\n" <<
+			*card << "\n";
 
 		std::cout << "\n";
 		nr_card++;
@@ -122,9 +116,10 @@ void Player::printField()
 
 	for (const auto& card : m_field)
 	{
-		std::cout << "Card " << nr_card << ":\n";
+		std::cout << "Card " << nr_card << ":\n" <<
+			*card << "\n";
 
-		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
+		if (auto monster = dynamic_cast<MonsterCard*>(card.get())) 
 		{
 			std::cout << *monster << "In " << monster->getPosition() << " position\n";
 		}
@@ -141,16 +136,8 @@ void Player::printGraveyard()
 
 	for (const auto& card : m_graveyard)
 	{
-		std::cout << "Card " << nr_card << ":\n";
-
-		if (auto* monster = dynamic_cast<MonsterCard*>(card.get())) 
-		{
-			std::cout << *monster;
-		} 
-		else if (auto* magic = dynamic_cast<MagicCard*>(card.get())) 
-		{
-			std::cout << *magic;
-		}
+		std::cout << "Card " << nr_card << ":\n" << 
+			*card << "\n";
 
 		std::cout << "\n";
 		nr_card++;
@@ -162,13 +149,21 @@ void Player::printGraveyard()
 
 void Player::loadingDeck(const int nr_cards_in_deck)
 {
-	auto monster_pool = loadMonsterCardsFromFile();
-	auto magic_pool = loadMagicCardsFromFile();
-	std::vector<int> rows_read_cards = generate_rand_rows(nr_cards_in_deck);
+	auto loaded_monster_cards = loadMonsterCardsFromFile();
+	auto loaded_magic_cards = loadMagicCardsFromFile();
+	std::vector<int> rand_cards_read = generate_rand_cards(nr_cards_in_deck);
 
-	for (size_t i = 0; i < rows_read_cards.size(); i++)
+	for (size_t i = 0; i < rand_cards_read.size(); i++)
 	{
-		m_deck.push_back(std::move(loaded_cards[rows_read_cards[i]]));
+		if(rand_cards_read[i] < loaded_monster_cards.size())
+		{
+			m_deck.push_back(std::make_unique<MonsterCard>(loaded_monster_cards[rand_cards_read[i]]));
+		}
+		else
+		{
+			m_deck.push_back(std::make_unique<MagicCard>(
+				loaded_magic_cards[rand_cards_read[i] - loaded_monster_cards.size()]));
+		}
 	}
 
 	shuffleDeck();
@@ -192,16 +187,43 @@ void Player::shuffleDeck()
 void Player::draw()
 {
 	m_hand.push_back(std::move(m_deck.back()));
+	m_deck.pop_back();
 
-	std::cout << "You drew:\n" << lastDrawnCard() << "\n";
+	std::cout << "You drew:\n" << *lastDrawnCard() << "\n";
 }
 
-const MonsterCard& Player::lastDrawnCard()
+const std::unique_ptr<BaseCard>& Player::lastDrawnCard()
 {
 	return m_hand[m_hand.size() - 1];
 }
 
-void Player::summonCard()
+void Player::summonMonsterCard(int card_index)
+{
+	std::cout << "Enter in what position you want to summon (attack/defence): ";
+
+	// validate user input
+	std::string position;
+	while(true)
+	{
+		std::getline(std::cin, position);
+
+		if (position == "attack" || position == "defence")
+		{
+			if (auto monster = dynamic_cast<MonsterCard*>(m_hand[card_index-1].get())) 
+			{
+				monster->setPosition(position);
+			}
+			m_field.push_back(std::move(m_hand[card_index-1]));
+			m_hand.erase(m_hand.begin() + card_index-1);
+
+			break;
+		}
+
+		std::cout << "Invalid input! Enter 'attack' or 'defence': ";
+	}
+}
+
+void Player::playCardFromHand()
 {
 	if (m_hand.size() == 0)
 	{
@@ -209,21 +231,21 @@ void Player::summonCard()
 		return;
 	}
 
-	std::cout << "\nYou chose to summon a card.\n";
+	std::cout << "\nYou chose to play a card.\n";
 
 	printHand();
 
-	std::cout << "Enter which card you want to summon: ";
+	std::cout << "Enter which card you want to play: ";
 
 	// validate user input
-	int card_number;
+	int card_index;
 	while(true)
 	{
-		if(std::cin >> card_number)
+		if(std::cin >> card_index)
 		{
 			std::cin.ignore();
 
-			if (card_number >= 1 && card_number <= m_hand.size())
+			if (card_index >= 1 && card_index <= m_hand.size())
 			{
 				break;
 			}
@@ -235,32 +257,24 @@ void Player::summonCard()
 		}
 		std::cout << "Invalid input. Enter a number between 1 and " << m_hand.size() << ": ";
 	}
-	
-	std::cout << "Enter in what position you want to summon (attack/defence): ";
 
-	// validate user input
-	std::string position;
-	while(true)
+	if(auto card = dynamic_cast<MonsterCard*>(m_hand[card_index-1].get()))
 	{
-		std::getline(std::cin, position);
-
-		if (position == "attack" || position == "defence")
-		{
-			if (auto* monster = dynamic_cast<MonsterCard*>(m_hand[card_number-1].get())) 
-			{
-				monster->setPosition(position);
-			}
-			m_field.push_back(std::move(m_hand[card_number-1]));
-			m_hand.erase(m_hand.begin() + card_number-1);
-
-			break;
-		}
-
-		std::cout << "Invalid input! Enter 'attack' or 'defence': ";
+		summonMonsterCard(card_index);
+	}
+	else if(auto card = dynamic_cast<MagicCard*>(m_hand[card_index-1].get()))
+	{
+		playMagicCard(card_index);
 	}
 }
 
-void Player::destroyedCard(int card_index)
+void Player::playMagicCard(int card_index)
+{
+	//TODO: implement playing a magic card and triggering its effects
+
+}
+
+void Player::destroyCard(int card_index)
 {
 	m_graveyard.push_back(std::move(m_field[card_index]));
 	m_field.erase(m_field.begin() + card_index);
@@ -275,7 +289,6 @@ void Player::changeCardPosition()
 	}
 
 	std::cout << "You chose to change a card's position. \n";
-	std::cout << "Your field contains:\n";
 
 	printField();
 
@@ -302,7 +315,7 @@ void Player::changeCardPosition()
 			std::cin.clear();
 			std::cin.ignore(10000, '\n');
 		}
-		std::cout << "Invalid input. Enter a number between 1 and " << m_field.size() << ": ";
+		std::cout << "Invalid input! Enter a number between 1 and " << m_field.size() << ": ";
 	}
 }
 
@@ -319,7 +332,7 @@ bool Player::canAttack()
 	for (const auto& card : m_field)
 	{
 		{
-			auto* monster = dynamic_cast<MonsterCard*>(card.get());
+			auto monster = dynamic_cast<MonsterCard*>(card.get());
 			if (monster && monster->getPosition() == "attack")
 			{
 				return true;
