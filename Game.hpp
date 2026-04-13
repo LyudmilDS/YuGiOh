@@ -3,25 +3,28 @@
 
 //system includes
 #include<iostream> //cout
+#include<memory> //unique_ptr
 #include<string> //string
 #include<vector> //vector
 
 //user includes
-#include"Card.hpp"
+#include"MonsterCard.hpp"
 #include"Player.hpp"
 
 class Game
 {
 private:
-	Player m_player1;
-	Player m_player2;
+	std::unique_ptr<Player> m_player1;
+	std::unique_ptr<Player> m_player2;
 
 public:
 	Game() = delete;
-	Game(const Player& player1, const Player& player2);
+	Game(const std::string& player1_name, const std::string& player2_name);
+	~Game() = default;
+
 
 	/// @brief Main function that runs the game loop.
-	void startGame(Player& player1, Player& player2);
+	void startGame();
 
 	/// @brief Handles the turn for a specific player.
 	void playerTurn(Player& current_player, Player& enemy_player);
@@ -44,7 +47,7 @@ private:
 	/// @param prompt: The message to display when prompting for input.
 	/// @param requireAttackPosition: If true, rejects cards in defence position (for attacking cards).
 	/// @return The 1-based card index.
-	int validateCardSelection(const std::vector<Card>& field, const std::string& prompt, bool requireAttackPosition = false);
+	int validateCardSelection(const std::vector<std::unique_ptr<BaseCard>>& field, const std::string& prompt, bool requireAttackPosition = false);
 	
 	/// @brief Resolves the battle between an attacking card and a defending card.
 	/// @param current_player: The player whose card is attacking.
@@ -53,8 +56,12 @@ private:
 	/// @param defending_card: Reference to the defending card.
 	/// @param attacking_card_index: The index of the attacking card on the field.
 	/// @param defending_card_index: The index of the defending card on the field.
-	void resolveBattle(Player& current_player, Player& enemy_player, const Card& attacking_card, 
-		const Card& defending_card, int attacking_card_index, int defending_card_index);
+	void resolveBattle(Player& current_player, 
+						Player& enemy_player, 
+						const MonsterCard& attacking_card, 
+						const MonsterCard& defending_card, 
+						int attacking_card_index, 
+						int defending_card_index);
 };
 
 

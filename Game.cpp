@@ -1,45 +1,57 @@
 //system includes
 #include<iostream> //cout
+#include<memory> //unique_ptr
 #include<string> //string
 #include<vector> //vector
 
 //user includes
-#include"Card.hpp"
+#include"MonsterCard.hpp"
 #include "Game.hpp"
 
 
 //-------------------------------------------
 //Game Class implementation
 
-Game::Game(const Player& player1, const Player& player2) : m_player1(player1), m_player2(player2)
+Game::Game(const std::string& player1_name, const std::string& player2_name) :
+	m_player1(std::make_unique<Player>(player1_name)),
+	m_player2(std::make_unique<Player>(player2_name))
 {
 }
 
-void Game::startGame(Player& player1, Player& player2)
+void Game::startGame()
 {
 	int turn_nr = 1;
 
-	std::cout << "------------------------------\n" <<
+	std::cout << 
+		"------------------------------\n" <<
 		"|  Prepare for the game. \n" <<
 		"|  Loading decks... \n" <<
 		"------------------------------\n";
 
-	player1.loadingDeck(10);
-	player2.loadingDeck(10);
+	m_player1.get()->loadingDeck(10);
+	m_player2.get()->loadingDeck(10);
 
 	while (true)
 	{
-		std::cout << "------------------------------\n" <<
-			"|  Turn " << turn_nr << ":\n" <<
-			"------------------------------\n";
-
 		if (turn_nr % 2 == 1)
 		{
-			playerTurn(player1, player2);
+			std::cout << 
+			"------------------------------\n" <<
+			"|  Turn " << turn_nr << ":\n" <<
+			"|  " << m_player1.get()->getName() <<"(" << m_player1.get()->getLivePoints() << " LP)" << " plays \n" <<
+			"------------------------------\n";
+
+			playerTurn(*m_player1.get(), *m_player2.get());
 		}
 		else
 		{
-			playerTurn(player2, player1);
+			std::cout << 
+			"------------------------------\n" <<
+			"|  Turn " << turn_nr << ":\n" <<
+			"|  " << m_player2.get()->getName() <<"(" << m_player2.get()->getLivePoints() << " LP)" << " plays \n" <<
+			"------------------------------\n";
+
+			playerTurn(*m_player2.get(), *m_player1.get());
 		}
 		++turn_nr;
 	}
@@ -70,7 +82,7 @@ void Game::playerTurn(Player& current_player, Player& enemy_player)
 		}
 		else
 		{
-			std::cout << "Invalid input. Enter 'battle' or 'end'.\n";
+			std::cout << "Invalid input. Enter 'battle' or 'end': ";
 		}
 	}
 }
@@ -92,7 +104,8 @@ void Game::standByPhase(Player& current_player, Player& enemy_player)
 		"|  Standby phase:\n" <<
 		"------------------------------\n";
 
-	std::cout << "Actions you can do in this phase:\n" <<
+	std::cout << 
+		"Actions you can do in this phase:\n" <<
 		"1. Summon a card from your hand to the field.\n" <<
 		"2. Change the position of a card on the field.\n" <<
 		"3. Enter battle phase.\n" <<
@@ -106,23 +119,25 @@ void Game::standByPhase(Player& current_player, Player& enemy_player)
 	{
 		if(std::cin >> action)
 		{
+			std::cin.ignore(10000, '\n');
 			if (action >= 1 && action <= 4)
 			{
-				std::cin.ignore();
 				break;
 			}
 		}
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
-
-		std::cout << "Invalid action. Please enter a number between 1 and 4: ";
+		std::cout << "Invalid action! Please enter a number between 1 and 4: ";
 	}
 
 	switch (action)
 	{
 	case 1:
-		current_player.summonCard();
+		current_player.playCardFromHand();
 		break;
 	case 2:
 		current_player.changeCardPosition();
@@ -151,29 +166,50 @@ void Game::battlePhase(Player& current_player, Player& enemy_player)
 
 	current_player.printField();
 
-	// validate user input for selecting attacking card
+	// choose attacking card and validate user input
 	int curr_player_selected_card = validateCardSelection(
 		current_player.getField(), 
 		"Enter the card number you want to attack with: ", 
-		true)-1;
+		true);
+
+	// If enemy has no cards on the field, attack directly and end the battle phase
+	if(enemy_player.getField().size() == 0)
+	{
+		auto direct_hit_damage = dynamic_cast<MonsterCard*>(
+			current_player.getField()[curr_player_selected_card].get())->getAttack();
+
+		std::cout << 
+			"Enemy has no cards on the field. You attack directly and enemy loses " <<
+			direct_hit_damage << " LP!\n";
+
+		enemy_player.receiveDamage(direct_hit_damage);
+		endPhase();
+
+		return;
+	}
 
 	std::cout << "Enemy field contains:\n";
 	enemy_player.printField();
 
-	// validate user input for selecting defending card
+	// choose defending card and validate user input
 	int enemy_player_selected_card = validateCardSelection(
 		enemy_player.getField(),
 		"Enter the card number from enemy field you want to attack: ", 
-		false)-1;
+		false);
 
-	Card& attacking_card = current_player.getField()[curr_player_selected_card];
-	Card& defending_card = enemy_player.getField()[enemy_player_selected_card];
+	auto attacker = dynamic_cast<MonsterCard*>(current_player.getField()[curr_player_selected_card].get());
+	auto defender = dynamic_cast<MonsterCard*>(enemy_player.getField()[enemy_player_selected_card].get());
+
+	if (!attacker || !defender) {
+		std::cout << "Error: Only monsters can participate in battle.\n";
+		return;
+	}
 
 	resolveBattle(
 		current_player, 
 		enemy_player, 
-		attacking_card, 
-		defending_card, 
+		*attacker, 
+		*defender, 
 		curr_player_selected_card, 
 		enemy_player_selected_card);
 
@@ -189,22 +225,31 @@ void Game::endPhase()
 	std::cout << "End of your turn. Now it's enemy turn.\n";
 }
 
-int Game::validateCardSelection(const std::vector<Card>& field, const std::string& prompt, bool requireAttackPosition)
+int Game::validateCardSelection(const std::vector<std::unique_ptr<BaseCard>>& field, const std::string& prompt, bool requireAttackPosition)
 {
 	std::cout << prompt;
 
-	int card_number;
+	int card_index;
 	int field_size = field.size();
 
+	// validate user input
 	while (true)
 	{
-		if(std::cin >> card_number)
+		if(std::cin >> card_index)
 		{
-			std::cin.ignore();
+			// clears '\n' from the input buffer
+			std::cin.ignore(10000, '\n');
 
-			if (card_number >= 1 && card_number <= field_size)
+			if (card_index >= 1 && card_index <= field_size)
 			{
-				if (requireAttackPosition && field[card_number - 1].getPosition() == std::string("defence"))
+				auto monster = dynamic_cast<MonsterCard*>(field[card_index - 1].get());
+
+				if (!monster) { 
+					std::cout << "Selected card is not a monster! Please selesect a monster card.\n"; 
+					continue; 
+				}
+
+				if (requireAttackPosition && monster->getPosition() == "defence")
 				{
 					std::cout << "You can't attack with a card in defence position. You need to change its position first.\n" <<
 						prompt;
@@ -214,20 +259,23 @@ int Game::validateCardSelection(const std::vector<Card>& field, const std::strin
 				break;
 			}
 		}
+		else
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+		}
 
-		std::cin.clear();
-		std::cin.ignore(10000, '\n');
-
-		std::cout << "Invalid input. Please enter a number between 1 and " << field_size << ": ";
+		std::cout << "Invalid input! Please enter a number between 1 and " << field_size << ": ";
 	}
 
-	return card_number;
+	// returns 0-based index of the selected card
+	return card_index-1;
 }
 
 void Game::resolveBattle(Player& current_player, 
 						Player& enemy_player, 
-						const Card& attacking_card,
-						const Card& defending_card, 
+						const MonsterCard& attacking_card,
+						const MonsterCard& defending_card, 
 						int attacking_card_index, 
 						int defending_card_index)
 {
@@ -235,7 +283,7 @@ void Game::resolveBattle(Player& current_player,
 	{
 		if (attacking_card.getAttack() > defending_card.getDefence())
 		{
-			enemy_player.destroyedCard(defending_card_index);
+			enemy_player.destroyCard(defending_card_index);
 			std::cout << "Enemy card is destroyed!\n";
 		}
 		else if (attacking_card.getAttack() < defending_card.getDefence())
@@ -254,7 +302,7 @@ void Game::resolveBattle(Player& current_player,
 	{
 		if (attacking_card.getAttack() > defending_card.getAttack())
 		{
-			enemy_player.destroyedCard(defending_card_index);
+			enemy_player.destroyCard(defending_card_index);
 			enemy_player.receiveDamage(attacking_card.getAttack() - defending_card.getAttack());
 
 			std::cout << "Enemy card is destroyed! Enemy loses " <<
@@ -262,13 +310,13 @@ void Game::resolveBattle(Player& current_player,
 		}
 		else if (attacking_card.getAttack() == defending_card.getAttack())
 		{
-			current_player.destroyedCard(attacking_card_index);
-			enemy_player.destroyedCard(defending_card_index);
+			current_player.destroyCard(attacking_card_index);
+			enemy_player.destroyCard(defending_card_index);
 			std::cout << "Both cards had the same attack power and both are destroyed!\n";
 		}
 		else if (attacking_card.getAttack() < defending_card.getAttack())
 		{
-			current_player.destroyedCard(attacking_card_index);
+			current_player.destroyCard(attacking_card_index);
 			current_player.receiveDamage(defending_card.getAttack() - attacking_card.getAttack());
 			std::cout << "Your card attack is less than enemy's card attack. Your card is destroyed and you lose " <<
 				defending_card.getAttack() - attacking_card.getAttack() << " LP!\n";
